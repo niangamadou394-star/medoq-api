@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: medoq-api
+    env: node
+    buildCommand: npm install && node src/database/seed.js
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 86400
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 604800
+      - key: DB_PATH
+        value: ./medoq.db
+      - key: COMMISSION_RATE
+        value: 1.5
+      - key: RESERVATION_EXPIRY_HOURS
+        value: 2
+      - key: NODE_ENV
+        value: production
