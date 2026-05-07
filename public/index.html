@@ -225,10 +225,10 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-search">
  <div class="topbar">
- <div class="input-wrap" style="margin:0;flex:1">
- 
- <input id="search-input" placeholder="Médicament, DCI..." oninput="doSearch(this.value)" autofocus
- style="border-radius:24px;background:var(--lgray);border-color:transparent">
+ <div class="input-wrap" style="margin:0;flex:1;position:relative">
+ <input id="search-input" placeholder="Médicament, pharmacie..." autocomplete="off" type="search"
+ style="border-radius:24px;background:var(--lgray);border-color:transparent;padding-right:40px;-webkit-appearance:none">
+ <button onclick="doSearch(document.getElementById('search-input').value)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;cursor:pointer;padding:4px;color:var(--green)">🔍</button>
  </div>
  <button style="margin-left:10px;flex-shrink:0;background:none;border:none;font-size:15px;font-weight:600;color:var(--green);cursor:pointer;padding:8px 4px" onclick="clearSearchAndBack()">Annuler</button>
  </div>
@@ -628,7 +628,7 @@ function goScreen(id, push = true) {
  if (id === 'screen-search') {
    setTimeout(function() {
      var inp = document.getElementById('search-input');
-     if (inp) { inp.focus(); inp.click(); }
+     if (inp) { inp.focus(); }
    }, 150);
  }
 }
@@ -664,7 +664,7 @@ function switchTab(tab) {
  if (tab === 'search') {
    setTimeout(function() {
      var inp = document.getElementById('search-input');
-     if (inp) { inp.focus(); inp.click(); }
+     if (inp) { inp.focus(); }
    }, 150);
  }
 }
@@ -835,17 +835,14 @@ let searchTimer;
 async function doSearch(q) {
  clearTimeout(searchTimer);
  const el = document.getElementById('search-results');
- if (!q.trim()) { el.innerHTML = '<div class="empty"><p>Tapez le nom d\'un médicament ou d\'une pharmacie</p></div>'; return; }
+ if (!q || !q.trim()) { el.innerHTML = '<div class="empty"><p>Tapez le nom d\'un médicament ou d\'une pharmacie</p></div>'; return; }
  el.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
  searchTimer = setTimeout(async () => {
-   try {
-     var enc = encodeURIComponent(q);
-     var results = await Promise.all([
-       GET('/medications?q=' + enc + '&limit=10'),
-       GET('/pharmacies?q=' + enc + '&limit=5'),
-     ]);
-     var meds = (results[0].data && results[0].data.medications) ? results[0].data.medications : [];
-     var phs  = (results[1].data && results[1].data.pharmacies)  ? results[1].data.pharmacies  : [];
+   var enc = encodeURIComponent(q.trim());
+   var meds = [], phs = [];
+   try { var r1 = await GET('/medications?q=' + enc + '&limit=10'); meds = (r1.data && r1.data.medications) ? r1.data.medications : []; } catch(_) {}
+   try { var r2 = await GET('/pharmacies?q=' + enc + '&limit=5');  phs  = (r2.data && r2.data.pharmacies)  ? r2.data.pharmacies  : []; } catch(_) {}
+   {
      el.innerHTML = '';
      if (!meds.length && !phs.length) {
        el.innerHTML = '<div class="empty"><p>Aucun résultat pour "' + q + '"</p></div>';
@@ -887,7 +884,7 @@ async function doSearch(q) {
          el.appendChild(div);
        });
      }
-   } catch(e) { el.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
+   }
  }, 350);
 }
 
@@ -911,6 +908,14 @@ async function loadCategories() {
 
 // Event delegation for search results and pharmacy cards (iOS-safe)
 document.addEventListener('DOMContentLoaded', function() {
+ // Robust search input — fires on input, keyup, compositionend for iOS Safari
+ var sInp = document.getElementById('search-input');
+ if (sInp) {
+   function triggerSearch() { doSearch(sInp.value); }
+   sInp.addEventListener('input', triggerSearch);
+   sInp.addEventListener('keyup', triggerSearch);
+   sInp.addEventListener('compositionend', triggerSearch);
+ }
  document.getElementById('search-results').addEventListener('click', function(e) {
    var med = e.target.closest('[data-med-id]');
    var ph  = e.target.closest('[data-ph-id]');
