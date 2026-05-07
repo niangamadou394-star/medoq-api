@@ -203,7 +203,7 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  <!-- Pharmacie de garde -->
  <div class="section-label">Pharmacie de garde</div>
- <div id="garde-card"><div class="loader"><div class="spinner"></div></div></div>
+ <div id="garde-card" onclick="openCurrentGarde()" style="cursor:pointer"><div class="loader"><div class="spinner"></div></div></div>
  <!-- Popular -->
  <div class="section-label">Médicaments populaires</div>
  <div id="popular-list"><div class="loader"><div class="spinner"></div></div></div>
@@ -568,6 +568,8 @@ let S = {
  resQty: 1, resPayment: 'WAVE', resPrice: 0, resDelivery: 'PICKUP', resDeliveryAddress: '',
  allStock: [], allPhResas: [],
 };
+var currentGardeId = null;
+function openCurrentGarde() { if (currentGardeId) openPharmacy(currentGardeId); }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // API HELPERS
@@ -767,8 +769,7 @@ async function loadHome() {
        '<span style="font-size:13px;font-weight:600;background:rgba(0,0,0,.15);padding:5px 12px;border-radius:20px">' + (garde.openingHours || '24h/24') + '</span>' +
        '<span style="font-size:13px;font-weight:700;background:rgba(255,255,255,.25);padding:5px 14px;border-radius:20px">Voir le stock</span>' +
        '</div></div>';
-     var gcBtn = document.getElementById('gc-btn');
-     if (gcBtn) gcBtn.onclick = function() { openPharmacy(gardeId); };
+     currentGardeId = gardeId;
    } else {
      gc.innerHTML = '';
    }
@@ -833,14 +834,14 @@ async function doSearch(q) {
  d.data.medications.forEach(m => {
  const div = document.createElement('div');
  div.className = 'card-row';
+ div.setAttribute('data-med-id', m.id);
  div.style.cssText = 'margin:0 16px;padding:14px 0;border-bottom:1px solid var(--lgray);cursor:pointer;display:flex;align-items:center;gap:12px';
- div.innerHTML = `<span style="font-size:24px">Rx</span>
- <div style="flex:1">
- <div style="font-size:15px;font-weight:700">${m.name}</div>
- <div style="font-size:12px;color:var(--gray);margin-top:2px">${m.dci||''} ${m.form?'· '+m.form:''} ${m.dosage?'· '+m.dosage:''}</div>
- </div>
- <span class="badge ${m.requiresPrescription?'badge-orange':'badge-green'}">${m.requiresPrescription?'Ordo':'Libre'}</span>`;
- div.onclick = () => openMed(m.id);
+ var icon = m.requiresPrescription ? 'Rx' : 'OTC';
+ div.innerHTML =
+   '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);flex-shrink:0">' + icon + '</div>' +
+   '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700">' + m.name + '</div>' +
+   '<div style="font-size:12px;color:var(--gray);margin-top:2px">' + (m.dci||'') + (m.form?' · '+m.form:'') + (m.dosage?' · '+m.dosage:'') + '</div></div>' +
+   '<span class="badge ' + (m.requiresPrescription?'badge-orange':'badge-green') + '">' + (m.requiresPrescription?'Ordo':'Libre') + '</span>';
  el.appendChild(div);
  });
  } catch(e) { el.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
@@ -856,7 +857,7 @@ async function loadCategories() {
  const b = document.createElement('button');
  b.className = 'tab';
  b.textContent = cat;
- b.onclick = () => {
+ b.onclick = function() {
  document.getElementById('search-input').value = cat;
  doSearch(cat);
  };
@@ -864,6 +865,20 @@ async function loadCategories() {
  });
  } catch(_) {}
 }
+
+// Event delegation for search results and pharmacy cards (iOS-safe)
+document.addEventListener('DOMContentLoaded', function() {
+ document.getElementById('search-results').addEventListener('click', function(e) {
+   var row = e.target.closest('[data-med-id]');
+   if (row) openMed(row.getAttribute('data-med-id'));
+ });
+ document.getElementById('nearby-list').addEventListener('click', function(e) {
+   var openBtn = e.target.closest('[data-open-ph]');
+   var callBtn = e.target.closest('[data-call-ph]');
+   if (openBtn) openPharmacy(openBtn.getAttribute('data-open-ph'));
+   if (callBtn) callPharmacy(callBtn.getAttribute('data-call-ph'));
+ });
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PATIENT — MED DETAIL
@@ -1343,8 +1358,8 @@ function buildPhCard(p) {
  </div>
  </div>
  <div class="ph-actions">
- <button class="btn btn-primary btn-sm" onclick='openPharmacy("${p.id}")' style="flex:1">Voir les medicaments</button>
- <button class="btn btn-outline btn-sm" onclick='callPharmacy("${p.phone||''}")'>Appeler</button>
+ <button class="btn btn-primary btn-sm" data-open-ph="${p.id}" style="flex:1">Voir les medicaments</button>
+ <button class="btn btn-outline btn-sm" data-call-ph="${p.phone||''}">Appeler</button>
  </div>`;
  return div;
 }
