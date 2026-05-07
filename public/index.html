@@ -32,7 +32,7 @@ body{font-family:var(--font);background:#F0F4F1;color:var(--black)}
 /* ─── Topbar ───────────────────────────────────────────────────────────── */
 .topbar{display:flex;align-items:center;padding:16px 16px 12px;background:var(--white);border-bottom:1px solid var(--mgray);flex-shrink:0;min-height:60px}
 .topbar-title{font-size:17px;font-weight:700;color:var(--black);flex:1;text-align:center}
-.topbar-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--lgray);border:none;cursor:pointer;font-size:18px;color:var(--gray)}
+.topbar-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 12px;border-radius:20px;background:var(--lgray);border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--gray);font-family:var(--font);white-space:nowrap}
 .topbar-btn:active{background:var(--mgray)}
 .topbar-logo{font-size:22px;font-weight:800;color:var(--black);flex:1}
 .topbar-logo span{color:var(--green)}
@@ -243,7 +243,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-med">
  <div class="topbar">
- <button class="topbar-btn" onclick="goBack()">‹</button>
+ <button class="topbar-btn" onclick="goBack()">← Retour</button>
  <div class="topbar-title" id="med-title">Médicament</div>
  <div style="width:36px"></div>
  </div>
@@ -266,7 +266,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-pharmacy">
  <div class="topbar">
- <button class="topbar-btn" onclick="goBack()">‹</button>
+ <button class="topbar-btn" onclick="goBack()">← Retour</button>
  <div class="topbar-title" id="ph-title">Pharmacie</div>
  <div style="width:36px"></div>
  </div>
@@ -296,7 +296,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-reserve">
  <div class="topbar">
- <button class="topbar-btn" onclick="goBack()">‹</button>
+ <button class="topbar-btn" onclick="goBack()">← Retour</button>
  <div class="topbar-title">Réserver</div>
  <div style="width:36px"></div>
  </div>
@@ -621,6 +621,7 @@ function goScreen(id, push = true) {
  if (current && push) {
  current.classList.add('slide-left');
  S.screenStack.push(current.id);
+ history.pushState({ screen: id }, '', location.href);
  }
  const next = document.getElementById(id);
  next.classList.remove('hidden', 'slide-left');
@@ -633,12 +634,25 @@ function goScreen(id, push = true) {
 }
 
 function goBack() {
- if (S.screenStack.length === 0) return;
+ if (S.screenStack.length === 0) {
+   // No stack — try to go to home if not already there
+   const home = document.getElementById('screen-home');
+   if (home && home.classList.contains('hidden')) switchTab('home');
+   return;
+ }
  const prev = S.screenStack.pop();
  const current = document.querySelector('.screen:not(.hidden):not(.slide-left)');
  if (current) current.classList.add('hidden');
  document.getElementById(prev).classList.remove('slide-left', 'hidden');
 }
+
+// Handle device/browser back button
+window.addEventListener('popstate', function() {
+ if (S.screenStack.length > 0) {
+   goBack();
+ }
+ history.pushState(null, '', location.href);
+});
 
 function switchTab(tab) {
  S.screenStack = [];
@@ -821,30 +835,59 @@ let searchTimer;
 async function doSearch(q) {
  clearTimeout(searchTimer);
  const el = document.getElementById('search-results');
- if (!q.trim()) { el.innerHTML = '<div class="empty"><p>Tapez le nom d\'un médicament</p></div>'; return; }
+ if (!q.trim()) { el.innerHTML = '<div class="empty"><p>Tapez le nom d\'un médicament ou d\'une pharmacie</p></div>'; return; }
  el.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
  searchTimer = setTimeout(async () => {
- try {
- const d = await GET('/medications?q=' + encodeURIComponent(q) + '&limit=20');
- el.innerHTML = '';
- if (!d.data.medications.length) {
- el.innerHTML = '<div class="empty"><p>Aucun résultat pour "' + q + '"</p></div>';
- return;
- }
- d.data.medications.forEach(m => {
- const div = document.createElement('div');
- div.className = 'card-row';
- div.setAttribute('data-med-id', m.id);
- div.style.cssText = 'margin:0 16px;padding:14px 0;border-bottom:1px solid var(--lgray);cursor:pointer;display:flex;align-items:center;gap:12px';
- var icon = m.requiresPrescription ? 'Rx' : 'OTC';
- div.innerHTML =
-   '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);flex-shrink:0">' + icon + '</div>' +
-   '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700">' + m.name + '</div>' +
-   '<div style="font-size:12px;color:var(--gray);margin-top:2px">' + (m.dci||'') + (m.form?' · '+m.form:'') + (m.dosage?' · '+m.dosage:'') + '</div></div>' +
-   '<span class="badge ' + (m.requiresPrescription?'badge-orange':'badge-green') + '">' + (m.requiresPrescription?'Ordo':'Libre') + '</span>';
- el.appendChild(div);
- });
- } catch(e) { el.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
+   try {
+     var enc = encodeURIComponent(q);
+     var results = await Promise.all([
+       GET('/medications?q=' + enc + '&limit=10'),
+       GET('/pharmacies?q=' + enc + '&limit=5'),
+     ]);
+     var meds = (results[0].data && results[0].data.medications) ? results[0].data.medications : [];
+     var phs  = (results[1].data && results[1].data.pharmacies)  ? results[1].data.pharmacies  : [];
+     el.innerHTML = '';
+     if (!meds.length && !phs.length) {
+       el.innerHTML = '<div class="empty"><p>Aucun résultat pour "' + q + '"</p></div>';
+       return;
+     }
+     if (meds.length) {
+       var secMed = document.createElement('div');
+       secMed.className = 'section-label';
+       secMed.textContent = 'Medicaments';
+       el.appendChild(secMed);
+       meds.forEach(function(m) {
+         var div = document.createElement('div');
+         div.setAttribute('data-med-id', m.id);
+         div.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--lgray);cursor:pointer';
+         var icon = m.requiresPrescription ? 'Rx' : 'OTC';
+         div.innerHTML =
+           '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);flex-shrink:0">' + icon + '</div>' +
+           '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700">' + m.name + '</div>' +
+           '<div style="font-size:12px;color:var(--gray);margin-top:2px">' + (m.dci||'') + (m.form?' · '+m.form:'') + (m.dosage?' · '+m.dosage:'') + '</div></div>' +
+           '<span class="badge ' + (m.requiresPrescription?'badge-orange':'badge-green') + '">' + (m.requiresPrescription?'Ordo':'Libre') + '</span>';
+         el.appendChild(div);
+       });
+     }
+     if (phs.length) {
+       var secPh = document.createElement('div');
+       secPh.className = 'section-label';
+       secPh.textContent = 'Pharmacies';
+       el.appendChild(secPh);
+       phs.forEach(function(p) {
+         var div = document.createElement('div');
+         div.setAttribute('data-ph-id', p.id);
+         div.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--lgray);cursor:pointer';
+         var is24h = p.openingHours && p.openingHours.indexOf('24') !== -1;
+         div.innerHTML =
+           '<div style="width:36px;height:36px;border-radius:8px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#1565C0;flex-shrink:0">Ph</div>' +
+           '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700">' + p.name + '</div>' +
+           '<div style="font-size:12px;color:var(--gray);margin-top:2px">' + (p.address||'') + '</div></div>' +
+           (is24h ? '<span class="badge badge-green" style="font-size:10px">24h/24</span>' : '<span style="font-size:11px;color:var(--gray)">' + (p.openingHours||'') + '</span>');
+         el.appendChild(div);
+       });
+     }
+   } catch(e) { el.innerHTML = '<div class="empty"><p>' + e.message + '</p></div>'; }
  }, 350);
 }
 
@@ -869,8 +912,10 @@ async function loadCategories() {
 // Event delegation for search results and pharmacy cards (iOS-safe)
 document.addEventListener('DOMContentLoaded', function() {
  document.getElementById('search-results').addEventListener('click', function(e) {
-   var row = e.target.closest('[data-med-id]');
-   if (row) openMed(row.getAttribute('data-med-id'));
+   var med = e.target.closest('[data-med-id]');
+   var ph  = e.target.closest('[data-ph-id]');
+   if (med) openMed(med.getAttribute('data-med-id'));
+   if (ph)  openPharmacy(ph.getAttribute('data-ph-id'));
  });
  document.getElementById('nearby-list').addEventListener('click', function(e) {
    var openBtn = e.target.closest('[data-open-ph]');
