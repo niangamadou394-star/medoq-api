@@ -635,7 +635,7 @@ function goScreen(id, push = true) {
 function goBack() {
  if (S.screenStack.length === 0) return;
  const prev = S.screenStack.pop();
- const current = document.querySelector('.screen:not(.hidden)');
+ const current = document.querySelector('.screen:not(.hidden):not(.slide-left)');
  if (current) current.classList.add('hidden');
  document.getElementById(prev).classList.remove('slide-left', 'hidden');
 }
