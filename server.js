@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
+const path    = require('path');
 
 // ─── Auto-seed if DB is empty ─────────────────────────────────────────────────
 try {
@@ -38,44 +39,21 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'medoq-api', version: '1.0.0', timestamp: new Date().toISOString() });
 });
 
-app.get('/', (req, res) => {
-  res.json({
-    service: '💊 Medoq API',
-    version: '1.0.0',
-    docs: '/health',
-    endpoints: [
-      'POST   /api/v1/auth/register',
-      'POST   /api/v1/auth/login',
-      'POST   /api/v1/auth/refresh',
-      'POST   /api/v1/auth/logout',
-      'GET    /api/v1/auth/me',
-      'GET    /api/v1/medications',
-      'GET    /api/v1/medications/popular',
-      'GET    /api/v1/medications/categories',
-      'GET    /api/v1/medications/:id',
-      'GET    /api/v1/pharmacies/nearby?lat=&lng=',
-      'GET    /api/v1/pharmacies',
-      'GET    /api/v1/pharmacies/:id',
-      'GET    /api/v1/pharmacies/:id/stock',
-      'PUT    /api/v1/pharmacies/:id/stock/:medicationId',
-      'POST   /api/v1/reservations',
-      'GET    /api/v1/reservations',
-      'GET    /api/v1/reservations/pharmacy',
-      'POST   /api/v1/reservations/:id/cancel',
-      'POST   /api/v1/reservations/:id/ready',
-      'POST   /api/v1/reservations/:id/complete',
-      'POST   /api/v1/payments/initiate',
-      'GET    /api/v1/payments/reservation/:reservationId',
-    ]
-  });
-});
-
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/v1/auth',         authRoutes);
 app.use('/api/v1/medications',  medicationsRoutes);
 app.use('/api/v1/pharmacies',   pharmaciesRoutes);
 app.use('/api/v1/reservations', reservationsRoutes);
 app.use('/api/v1/payments',     paymentsRoutes);
+
+// ─── Static web app ───────────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public')));
+
+// SPA fallback — serve index.html for any non-API route
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // ─── Error handling ───────────────────────────────────────────────────────────
 app.use(notFound);
