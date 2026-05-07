@@ -2,6 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 
+// ─── Auto-seed if DB is empty ─────────────────────────────────────────────────
+try {
+  const db = require('./src/database/db');
+  const userCount = db.prepare('SELECT COUNT(*) as cnt FROM users').get().cnt;
+  if (userCount === 0) {
+    console.log('📦 Base vide — seeding...');
+    require('./src/database/seed');
+  } else {
+    console.log(`✅ Base OK — ${userCount} utilisateur(s)`);
+  }
+} catch (e) { console.error('Seed error:', e.message); }
+
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 
 const authRoutes         = require('./src/routes/auth.routes');
@@ -14,7 +26,10 @@ const app  = express();
 const PORT = process.env.PORT || 8080;
 
 // ─── Middlewares ──────────────────────────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+  origin: ['https://niangamadou394-star.github.io', 'http://localhost:3000', 'http://localhost:8080', /\.netlify\.app$/, /\.onrender\.com$/],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
