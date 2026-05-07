@@ -1,8 +1,9 @@
 const { v4: uuidv4 } = require('uuid');
 const db = require('../database/db');
 
-const EXPIRY_HOURS   = parseInt(process.env.RESERVATION_EXPIRY_HOURS) || 2;
+const EXPIRY_HOURS    = parseInt(process.env.RESERVATION_EXPIRY_HOURS) || 2;
 const COMMISSION_RATE = parseFloat(process.env.COMMISSION_RATE) || 1.5;
+const DELIVERY_FEE    = parseFloat(process.env.DELIVERY_FEE) || 1500;
 
 // ─── Ref number generator (e.g. MRx-2026-000042) ─────────────────────────────
 function makeRef() {
@@ -14,13 +15,17 @@ function makeRef() {
 // ─── POST /reservations ───────────────────────────────────────────────────────
 function create(req, res, next) {
   try {
-    const { pharmacyId, medicationId, quantity, notes } = req.body;
-    const patientId = req.user.id;
+    const { pharmacyId, medicationId, quantity, notes, deliveryType, deliveryAddress } = req.body;
+    const patientId  = req.user.id;
+    const isDelivery = deliveryType === 'DELIVERY';
+
+    if (isDelivery && !deliveryAddress?.trim())
+      return res.status(400).json({ success: false, message: 'Adresse de livraison requise' });
 
     // Validate stock
     const stock = db.prepare('SELECT * FROM pharmacy_stock WHERE pharmacy_id=? AND medication_id=?').get(pharmacyId, medicationId);
-    if (!stock)            return res.status(404).json({ success: false, message: 'Médicament introuvable dans cette pharmacie' });
-    if (stock.quantity < quantity) return res.status(400).json({ success: false, message: `Stock insuffisant (disponible: ${stock.quantity})` });
+    if (!stock)                      return res.status(404).json({ success: false, message: 'Médicament introuvable dans cette pharmacie' });
+    if (stock.quantity < quantity)   return res.status(400).json({ success: false, message: `Stock insuffisant (disponible: ${stock.quantity})` });
 
     // Check pharmacy/medication exist
     const pharmacy   = db.prepare('SELECT id, name FROM pharmacies WHERE id=? AND is_active=1').get(pharmacyId);
@@ -28,18 +33,21 @@ function create(req, res, next) {
     if (!pharmacy)   return res.status(404).json({ success: false, message: 'Pharmacie introuvable' });
     if (!medication) return res.status(404).json({ success: false, message: 'Médicament introuvable' });
 
-    const totalAmount = stock.price * quantity;
-    const expiresAt   = new Date(Date.now() + EXPIRY_HOURS * 3600 * 1000).toISOString();
-    const id          = uuidv4();
-    const refNumber   = makeRef();
+    const deliveryFeeAmt = isDelivery ? DELIVERY_FEE : 0;
+    const totalAmount    = stock.price * quantity + deliveryFeeAmt;
+    const expiresAt      = new Date(Date.now() + EXPIRY_HOURS * 3600 * 1000).toISOString();
+    const id             = uuidv4();
+    const refNumber      = makeRef();
 
     // Decrement stock & insert reservation in a transaction
     const doInsert = db.transaction(() => {
       db.prepare('UPDATE pharmacy_stock SET quantity=quantity-?, updated_at=datetime(\'now\') WHERE pharmacy_id=? AND medication_id=?')
         .run(quantity, pharmacyId, medicationId);
-      db.prepare(`INSERT INTO reservations (id, ref_number, patient_id, pharmacy_id, medication_id, quantity, status, expires_at, total_amount, notes)
-                  VALUES (?,?,?,?,?,?,?,?,?,?)`)
-        .run(id, refNumber, patientId, pharmacyId, medicationId, quantity, 'CONFIRMED', expiresAt, totalAmount, notes || null);
+      db.prepare(`INSERT INTO reservations
+                  (id, ref_number, patient_id, pharmacy_id, medication_id, quantity, status, expires_at, total_amount, notes, delivery_type, delivery_address, delivery_fee)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+        .run(id, refNumber, patientId, pharmacyId, medicationId, quantity, 'CONFIRMED', expiresAt, totalAmount,
+             notes || null, isDelivery ? 'DELIVERY' : 'PICKUP', isDelivery ? deliveryAddress.trim() : null, deliveryFeeAmt);
     });
     doInsert();
 
@@ -156,8 +164,8 @@ function complete(req, res, next) {
       if (!link) return res.status(403).json({ success: false, message: 'Accès refusé' });
     }
 
-    if (resa.status !== 'CONFIRMED')
-      return res.status(400).json({ success: false, message: `Statut actuel: ${resa.status}` });
+    if (!['CONFIRMED', 'READY'].includes(resa.status))
+      return res.status(400).json({ success: false, message: `Impossible de terminer une réservation ${resa.status}` });
 
     db.prepare('UPDATE reservations SET status=\'COMPLETED\', updated_at=datetime(\'now\') WHERE id=?').run(resa.id);
     res.json({ success: true, message: 'Réservation complétée', data: { id: resa.id, status: 'COMPLETED' } });
@@ -233,6 +241,9 @@ function resaToDto(r) {
     expiresAt:       r.expires_at,
     totalAmount:     r.total_amount,
     notes:           r.notes,
+    deliveryType:    r.delivery_type    || 'PICKUP',
+    deliveryAddress: r.delivery_address || null,
+    deliveryFee:     r.delivery_fee     || 0,
     createdAt:       r.created_at,
     updatedAt:       r.updated_at,
   };

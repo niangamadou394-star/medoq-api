@@ -122,4 +122,9 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_stock_medication ON pharmacy_stock(medication_id);
 `);
 
+// ─── Migrations (safe to run multiple times) ──────────────────────────────────
+try { db.exec("ALTER TABLE reservations ADD COLUMN delivery_type TEXT NOT NULL DEFAULT 'PICKUP'"); } catch(_) {}
+try { db.exec("ALTER TABLE reservations ADD COLUMN delivery_address TEXT");                       } catch(_) {}
+try { db.exec("ALTER TABLE reservations ADD COLUMN delivery_fee REAL NOT NULL DEFAULT 0");        } catch(_) {}
+
 module.exports = db;

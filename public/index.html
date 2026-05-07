@@ -339,8 +339,25 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  </div>
  </div>
+ <div class="card" id="delivery-card">
+ <div class="card-body">
+ <label style="font-size:14px;font-weight:600;display:block;margin-bottom:8px">Mode de récupération</label>
+ <div style="display:flex;gap:8px;flex-wrap:wrap" id="delivery-methods">
+ <button class="tab active" onclick="selectDelivery(this,'PICKUP')">En pharmacie</button>
+ <button class="tab" onclick="selectDelivery(this,'DELIVERY')">Livraison (+1 500 FCFA)</button>
+ </div>
+ <div id="delivery-address-wrap" style="display:none;margin-top:12px">
+ <input type="text" id="delivery-address-input" class="no-icon" placeholder="Adresse de livraison complète...">
+ <div style="font-size:12px;color:var(--gray);margin-top:6px">Délai estimé : 30–60 min · Dakar intramuros</div>
+ </div>
+ </div>
+ </div>
  <div class="card">
  <div class="card-body">
+ <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px" id="res-delivery-row" style="display:none">
+ <span style="font-size:13px;color:var(--gray)">Livraison</span>
+ <span style="font-size:13px;font-weight:600;color:var(--gray)" id="res-delivery-fee">—</span>
+ </div>
  <div style="display:flex;justify-content:space-between;align-items:center">
  <span style="font-size:15px;font-weight:600">Total à payer</span>
  <span style="font-size:22px;font-weight:800;color:var(--green)" id="res-total">—</span>
@@ -548,7 +565,7 @@ let S = {
  token: null, user: null, pharmacyId: null, role: 'patient',
  screenStack: [],
  currentMed: null, currentPharma: null, currentStock: null,
- resQty: 1, resPayment: 'WAVE', resPrice: 0,
+ resQty: 1, resPayment: 'WAVE', resPrice: 0, resDelivery: 'PICKUP', resDeliveryAddress: '',
  allStock: [], allPhResas: [],
 };
 
@@ -605,6 +622,12 @@ function goScreen(id, push = true) {
  }
  const next = document.getElementById(id);
  next.classList.remove('hidden', 'slide-left');
+ if (id === 'screen-search') {
+   setTimeout(function() {
+     var inp = document.getElementById('search-input');
+     if (inp) { inp.focus(); inp.click(); }
+   }, 150);
+ }
 }
 
 function goBack() {
@@ -621,6 +644,13 @@ function switchTab(tab) {
  document.querySelectorAll('.screen').forEach(s => { s.classList.add('hidden'); s.classList.remove('slide-left'); });
  document.getElementById(map[tab]).classList.remove('hidden');
  if (tab === 'reservations') loadMyResas('');
+ if (tab === 'home') loadHome();
+ if (tab === 'search') {
+   setTimeout(function() {
+     var inp = document.getElementById('search-input');
+     if (inp) { inp.focus(); inp.click(); }
+   }, 150);
+ }
 }
 
 function pSwitchTab(tab) {
@@ -708,15 +738,16 @@ function doLogout() {
 // PATIENT — HOME
 // ═══════════════════════════════════════════════════════════════════════════
 async function loadHome() {
- try {
-   const [pop, nearby] = await Promise.all([
-     GET('/medications/popular'),
-     GET('/pharmacies?limit=10'),
-   ]);
-   const pharmacies = nearby.data.pharmacies;
+ var gc = document.getElementById('garde-card');
+ var pl = document.getElementById('popular-list');
+ var nl = document.getElementById('nearby-list');
 
-   // ── Pharmacie de garde ──────────────────────────────────────
-   var gc = document.getElementById('garde-card');
+ // Pharmacies + garde card
+ try {
+   var nearbyRes = await GET('/pharmacies?limit=10');
+   var pharmacies = (nearbyRes.data && nearbyRes.data.pharmacies) ? nearbyRes.data.pharmacies : [];
+
+   // Garde card
    var garde = null;
    for (var i = 0; i < pharmacies.length; i++) {
      if (pharmacies[i].openingHours && pharmacies[i].openingHours.indexOf('24') !== -1) {
@@ -724,51 +755,62 @@ async function loadHome() {
      }
    }
    if (!garde && pharmacies.length > 0) garde = pharmacies[0];
+
    if (garde) {
-     var gcard = document.createElement('div');
-     gcard.style.cssText = 'margin:0 16px 12px;background:linear-gradient(135deg,#1A7A4A,#2E9E64);border-radius:14px;padding:16px;color:#fff;cursor:pointer';
-     gcard.onclick = function(){ openPharmacy(garde.id); };
-     gcard.innerHTML =
+     var gardeId = garde.id;
+     gc.innerHTML =
+       '<div style="margin:0 16px 12px;background:linear-gradient(135deg,#1A7A4A,#2E9E64);border-radius:14px;padding:16px;color:#fff;cursor:pointer" id="gc-btn">' +
        '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;opacity:.8;margin-bottom:10px">PHARMACIE DE GARDE</div>' +
        '<div style="font-size:18px;font-weight:800;margin-bottom:4px">' + garde.name + '</div>' +
-       '<div style="font-size:13px;opacity:.85;margin-bottom:12px">' + (garde.address||'') + '</div>' +
+       '<div style="font-size:13px;opacity:.85;margin-bottom:12px">' + (garde.address || '') + '</div>' +
        '<div style="display:flex;justify-content:space-between;align-items:center">' +
-         '<span style="font-size:13px;font-weight:600;background:rgba(0,0,0,.15);padding:5px 12px;border-radius:20px">' + (garde.openingHours||'24h/24') + '</span>' +
-         '<span style="font-size:13px;font-weight:700;background:rgba(255,255,255,.25);padding:5px 14px;border-radius:20px">Voir le stock</span>' +
-       '</div>';
-     gc.innerHTML = '';
-     gc.appendChild(gcard);
+       '<span style="font-size:13px;font-weight:600;background:rgba(0,0,0,.15);padding:5px 12px;border-radius:20px">' + (garde.openingHours || '24h/24') + '</span>' +
+       '<span style="font-size:13px;font-weight:700;background:rgba(255,255,255,.25);padding:5px 14px;border-radius:20px">Voir le stock</span>' +
+       '</div></div>';
+     var gcBtn = document.getElementById('gc-btn');
+     if (gcBtn) gcBtn.onclick = function() { openPharmacy(gardeId); };
    } else {
      gc.innerHTML = '';
    }
 
-   // ── Medicaments populaires ──────────────────────────────────
-   var pl = document.getElementById('popular-list');
-   pl.innerHTML = '';
-   var wrap = document.createElement('div');
-   wrap.style.cssText = 'display:flex;gap:12px;padding:4px 16px 16px;overflow-x:auto;box-sizing:border-box;-webkit-overflow-scrolling:touch';
-   var meds = pop.data || [];
-   meds.slice(0,8).forEach(function(m) {
-     var el = document.createElement('div');
-     el.style.cssText = 'min-width:150px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;flex-shrink:0';
-     var tag = m.requiresPrescription ? '<span class="badge badge-orange" style="font-size:11px">Ordonnance</span>' : '<span class="badge badge-green" style="font-size:11px">Libre</span>';
-     var icon = m.requiresPrescription ? 'Rx' : 'OTC';
-     el.innerHTML =
-       '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);margin-bottom:10px">' + icon + '</div>' +
-       '<div style="font-size:13px;font-weight:700;line-height:1.3;margin-bottom:6px">' + m.name + '</div>' +
-       '<div style="font-size:11px;color:var(--gray);margin-bottom:8px">' + (m.category||'') + '</div>' +
-       tag;
-     el.onclick = function(){ openMed(m.id); };
-     wrap.appendChild(el);
-   });
-   pl.appendChild(wrap);
-
-   // ── Pharmacies proches ──────────────────────────────────────
-   var nl = document.getElementById('nearby-list');
+   // Pharmacies proches
    nl.innerHTML = '';
-   pharmacies.forEach(function(p){ nl.appendChild(buildPhCard(p)); });
+   pharmacies.forEach(function(p) { nl.appendChild(buildPhCard(p)); });
 
- } catch(e) { toast('' + e.message); }
+ } catch(e) {
+   gc.innerHTML = '';
+   nl.innerHTML = '<div class="empty"><p>Impossible de charger les pharmacies</p></div>';
+ }
+
+ // Medicaments populaires (independant)
+ try {
+   var popRes = await GET('/medications/popular');
+   var meds = (popRes.data && Array.isArray(popRes.data)) ? popRes.data : [];
+   pl.innerHTML = '';
+   if (meds.length === 0) {
+     pl.innerHTML = '<div class="empty"><p>Aucun medicament populaire</p></div>';
+   } else {
+     var wrap = document.createElement('div');
+     wrap.style.cssText = 'display:flex;gap:12px;padding:4px 16px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch';
+     meds.slice(0, 8).forEach(function(m) {
+       var el = document.createElement('div');
+       el.style.cssText = 'min-width:150px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;flex-shrink:0';
+       var tag = m.requiresPrescription
+         ? '<span class="badge badge-orange" style="font-size:11px">Ordonnance</span>'
+         : '<span class="badge badge-green" style="font-size:11px">Libre</span>';
+       el.innerHTML =
+         '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);margin-bottom:10px">' + (m.requiresPrescription ? 'Rx' : 'OTC') + '</div>' +
+         '<div style="font-size:13px;font-weight:700;line-height:1.3;margin-bottom:6px">' + m.name + '</div>' +
+         '<div style="font-size:11px;color:var(--gray);margin-bottom:8px">' + (m.category || '') + '</div>' +
+         tag;
+       el.onclick = (function(mid) { return function() { openMed(mid); }; })(m.id);
+       wrap.appendChild(el);
+     });
+     pl.appendChild(wrap);
+   }
+ } catch(e) {
+   pl.innerHTML = '<div class="empty"><p>Erreur chargement medicaments</p></div>';
+ }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -923,6 +965,8 @@ function openReserve(pharma, med, price) {
  S.currentMed = med;
  S.resPrice = price;
  S.resQty = 1;
+ S.resDelivery = 'PICKUP';
+ S.resDeliveryAddress = '';
  document.getElementById('res-med-name').textContent = med.name;
  document.getElementById('res-med-info').textContent = [med.form, med.dosage].filter(Boolean).join(' · ');
  document.getElementById('res-ph-name').textContent = pharma.name;
@@ -949,7 +993,31 @@ function openReserve(pharma, med, price) {
  info.style.color = '';
  info.innerHTML = 'Votre médicament sera réservé pendant 2 heures';
  }
+ // Reset delivery UI
+ document.getElementById('delivery-address-wrap').style.display = 'none';
+ document.getElementById('delivery-address-input').value = '';
+ var dBtns = document.querySelectorAll('#delivery-methods .tab');
+ dBtns.forEach(function(b){ b.classList.remove('active'); });
+ if (dBtns[0]) dBtns[0].classList.add('active');
+ var dRow = document.getElementById('res-delivery-row');
+ if (dRow) dRow.style.display = 'none';
  goScreen('screen-reserve');
+}
+
+function selectDelivery(btn, type) {
+ S.resDelivery = type;
+ document.querySelectorAll('#delivery-methods .tab').forEach(function(b){ b.classList.remove('active'); });
+ btn.classList.add('active');
+ var wrap = document.getElementById('delivery-address-wrap');
+ var row = document.getElementById('res-delivery-row');
+ if (type === 'DELIVERY') {
+   wrap.style.display = 'block';
+   if (row) row.style.display = 'flex';
+ } else {
+   wrap.style.display = 'none';
+   if (row) row.style.display = 'none';
+ }
+ updateResTotal();
 }
 
 function changeQty(d) {
@@ -959,9 +1027,13 @@ function changeQty(d) {
 }
 
 function updateResTotal() {
- const total = S.resPrice * S.resQty;
+ const deliveryFee = S.resDelivery === 'DELIVERY' ? 1500 : 0;
+ const subtotal = S.resPrice * S.resQty;
+ const total = subtotal + deliveryFee;
  document.getElementById('res-total').textContent = fmtFCFA(total);
  document.getElementById('res-total-label').textContent = '= ' + fmtFCFA(total);
+ var feeEl = document.getElementById('res-delivery-fee');
+ if (feeEl) feeEl.textContent = deliveryFee > 0 ? fmtFCFA(deliveryFee) : 'Gratuit';
 }
 
 function selectPayment(btn, method) {
@@ -974,10 +1046,18 @@ async function confirmReservation() {
  const btn = document.getElementById('res-btn');
  btn.textContent = 'Réservation...'; btn.disabled = true;
  try {
- const d = await POST('/reservations', {
+ S.resDeliveryAddress = (document.getElementById('delivery-address-input').value || '').trim();
+   if (S.resDelivery === 'DELIVERY' && !S.resDeliveryAddress) {
+     toast('Veuillez saisir votre adresse de livraison');
+     btn.textContent = 'Confirmer la réservation'; btn.disabled = false;
+     return;
+   }
+   const d = await POST('/reservations', {
  pharmacyId: S.currentPharma.id,
  medicationId: S.currentMed.id,
  quantity: S.resQty,
+ deliveryType: S.resDelivery,
+ deliveryAddress: S.resDeliveryAddress || null,
  });
  const resa = d.data;
  // Initiate payment
@@ -1029,10 +1109,11 @@ function buildResaCard(r) {
  <span class="badge ${s.cls}">${s.lbl}</span>
  </div>
  <div class="resa-body">
- <div class="resa-med">Rx ${r.medicationName}</div>
+ <div class="resa-med">${r.medicationName}</div>
  <div class="resa-ph">${r.pharmacyName}</div>
  <div style="font-size:13px;color:var(--gray);margin-top:6px">Qté: ${r.quantity} · ${fmtFCFA(r.totalAmount)}</div>
- <div style="font-size:12px;color:var(--gray);margin-top:2px"> ${fmtDate(r.createdAt)}</div>
+ ${r.deliveryType==='DELIVERY'?'<div style="font-size:12px;font-weight:600;color:#1565C0;margin-top:4px">Livraison — '+r.deliveryAddress+'</div>':''}
+ <div style="font-size:12px;color:var(--gray);margin-top:2px">${fmtDate(r.createdAt)}</div>
  </div>
  ${r.status==='CONFIRMED'||r.status==='READY'?`
  <div class="resa-footer">
@@ -1123,8 +1204,9 @@ function buildPhResaCard(r) {
  <span class="badge ${s.cls}">${s.lbl}</span>
  </div>
  <div class="resa-body">
- <div class="resa-med">Rx ${r.medicationName} × ${r.quantity}</div>
+ <div class="resa-med">${r.medicationName} × ${r.quantity}</div>
  ${r.patientName?`<div class="resa-ph">${r.patientName} ${r.patientPhone?'· '+r.patientPhone:''}</div>`:''}
+ ${r.deliveryType==='DELIVERY'?'<div style="font-size:12px;font-weight:600;color:#1565C0;margin-top:4px">Livraison — '+r.deliveryAddress+'</div>':''}
  <div style="font-size:13px;color:var(--gray);margin-top:4px">${fmtFCFA(r.totalAmount)} · ${fmtDate(r.createdAt)}</div>
  </div>
  ${r.status==='CONFIRMED'?`
