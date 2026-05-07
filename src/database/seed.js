@@ -56,10 +56,16 @@ const insertPharma = db.prepare(`
 `);
 
 const pharmacies = [
-  { id: uuidv4(), name: 'Pharmacie Centrale du Plateau', addr: 'Av. L. S. Senghor, Plateau, Dakar',  lat: 14.6892, lng: -17.4443, phone: '+221338234567', hours: '24h/24',       lic: 'PH-DK-001', rating: 4.8, reviews: 127 },
-  { id: uuidv4(), name: 'Pharmacie des Almadies',         addr: 'Route des Almadies, Dakar',           lat: 14.7468, lng: -17.5142, phone: '+221338201234', hours: '08h - 22h',    lic: 'PH-DK-002', rating: 4.6, reviews: 89  },
-  { id: uuidv4(), name: 'Pharmacie Mermoz',               addr: 'Bd du Général de Gaulle, Mermoz',     lat: 14.7074, lng: -17.4718, phone: '+221338607890', hours: '08h30 - 21h30',lic: 'PH-DK-003', rating: 4.5, reviews: 64  },
-  { id: uuidv4(), name: 'Pharmacie Liberté 6',            addr: 'Rue 10 × Rue 12, Liberté 6',          lat: 14.7214, lng: -17.4562, phone: '+221338563412', hours: '08h - 20h',    lic: 'PH-DK-004', rating: 4.3, reviews: 41  },
+  { id: uuidv4(), name: 'Pharmacie Centrale du Plateau', addr: 'Av. L. S. Senghor, Plateau, Dakar',      lat: 14.6892, lng: -17.4443, phone: '+221338234567', hours: '24h/24',        lic: 'PH-DK-001', rating: 4.8, reviews: 127 },
+  { id: uuidv4(), name: 'Pharmacie des Almadies',         addr: 'Route des Almadies, Dakar',              lat: 14.7468, lng: -17.5142, phone: '+221338201234', hours: '08h - 22h',     lic: 'PH-DK-002', rating: 4.6, reviews: 89  },
+  { id: uuidv4(), name: 'Pharmacie Mermoz',               addr: 'Bd du General de Gaulle, Mermoz',        lat: 14.7074, lng: -17.4718, phone: '+221338607890', hours: '08h30 - 21h30', lic: 'PH-DK-003', rating: 4.5, reviews: 64  },
+  { id: uuidv4(), name: 'Pharmacie Liberte 6',            addr: 'Rue 10, Liberte 6, Dakar',               lat: 14.7214, lng: -17.4562, phone: '+221338563412', hours: '08h - 20h',     lic: 'PH-DK-004', rating: 4.3, reviews: 41  },
+  { id: uuidv4(), name: 'Pharmacie Point E',              addr: 'Av. Cheikh Anta Diop, Point E',          lat: 14.6956, lng: -17.4576, phone: '+221338234568', hours: '08h - 22h',     lic: 'PH-DK-005', rating: 4.4, reviews: 72  },
+  { id: uuidv4(), name: 'Pharmacie Sacre-Coeur',          addr: 'Sacre-Coeur 3, Dakar',                   lat: 14.7156, lng: -17.4689, phone: '+221338607891', hours: '08h - 22h30',   lic: 'PH-DK-006', rating: 4.5, reviews: 93  },
+  { id: uuidv4(), name: 'Pharmacie Fann Residence',       addr: 'Av. Pasteur, Fann, Dakar',               lat: 14.6934, lng: -17.4612, phone: '+221338563413', hours: '24h/24',        lic: 'PH-DK-007', rating: 4.7, reviews: 108 },
+  { id: uuidv4(), name: 'Pharmacie Grand Dakar',          addr: 'Route du Front de Terre, Grand Dakar',   lat: 14.7078, lng: -17.4412, phone: '+221338201236', hours: '08h - 21h30',   lic: 'PH-DK-008', rating: 4.3, reviews: 61  },
+  { id: uuidv4(), name: 'Pharmacie Medina',               addr: 'Av. Blaise Diagne, Medina, Dakar',       lat: 14.6912, lng: -17.4534, phone: '+221338234569', hours: '08h - 20h',     lic: 'PH-DK-009', rating: 4.1, reviews: 38  },
+  { id: uuidv4(), name: 'Pharmacie Ouakam',               addr: 'Route de Ouakam, Dakar',                 lat: 14.7234, lng: -17.4867, phone: '+221338201235', hours: '08h - 21h',     lic: 'PH-DK-010', rating: 4.2, reviews: 55  },
 ];
 
 pharmacies.forEach(p => insertPharma.run(p.id, p.name, p.addr, p.lat, p.lng, p.phone, p.hours, p.lic, p.rating, p.reviews));
@@ -93,11 +99,43 @@ const stockData = [
   [pharmacies[2].id, meds[2].id, 0,  2100, 10],
   [pharmacies[2].id, meds[5].id, 15, 1200, 8 ],
   [pharmacies[2].id, meds[7].id, 10, 2600, 8 ],
-  // Pharmacie Liberté 6
+  // Pharmacie Liberte 6
   [pharmacies[3].id, meds[0].id, 60, 1400, 10],
   [pharmacies[3].id, meds[3].id, 0,  4500, 5 ],
   [pharmacies[3].id, meds[4].id, 10, 1850, 10],
   [pharmacies[3].id, meds[6].id, 20, 950,  10],
+  // Pharmacie Point E
+  [pharmacies[4].id, meds[0].id, 35, 1500, 10],
+  [pharmacies[4].id, meds[2].id, 12, 2100, 10],
+  [pharmacies[4].id, meds[4].id, 18, 1800, 10],
+  [pharmacies[4].id, meds[7].id, 8,  2500, 8 ],
+  // Pharmacie Sacre-Coeur
+  [pharmacies[5].id, meds[0].id, 50, 1500, 10],
+  [pharmacies[5].id, meds[1].id, 7,  3300, 15],
+  [pharmacies[5].id, meds[3].id, 4,  4500, 5 ],
+  [pharmacies[5].id, meds[5].id, 20, 1200, 8 ],
+  [pharmacies[5].id, meds[6].id, 25, 900,  10],
+  // Pharmacie Fann Residence (24h)
+  [pharmacies[6].id, meds[0].id, 80, 1500, 15],
+  [pharmacies[6].id, meds[1].id, 20, 3200, 15],
+  [pharmacies[6].id, meds[2].id, 15, 2100, 10],
+  [pharmacies[6].id, meds[3].id, 6,  4500, 5 ],
+  [pharmacies[6].id, meds[4].id, 30, 1800, 10],
+  [pharmacies[6].id, meds[5].id, 25, 1200, 8 ],
+  [pharmacies[6].id, meds[6].id, 40, 900,  10],
+  [pharmacies[6].id, meds[7].id, 18, 2500, 8 ],
+  // Pharmacie Grand Dakar
+  [pharmacies[7].id, meds[0].id, 40, 1450, 10],
+  [pharmacies[7].id, meds[4].id, 15, 1800, 10],
+  [pharmacies[7].id, meds[6].id, 22, 900,  10],
+  // Pharmacie Medina
+  [pharmacies[8].id, meds[0].id, 25, 1400, 10],
+  [pharmacies[8].id, meds[2].id, 3,  2100, 10],
+  [pharmacies[8].id, meds[5].id, 12, 1200, 8 ],
+  // Pharmacie Ouakam
+  [pharmacies[9].id, meds[0].id, 20, 1500, 10],
+  [pharmacies[9].id, meds[4].id, 8,  1800, 10],
+  [pharmacies[9].id, meds[7].id, 5,  2600, 8 ],
 ];
 
 stockData.forEach(s => insertStock.run(uuidv4(), ...s));

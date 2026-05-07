@@ -6,12 +6,13 @@ const path    = require('path');
 // ─── Auto-seed if DB is empty ─────────────────────────────────────────────────
 try {
   const db = require('./src/database/db');
-  const userCount = db.prepare('SELECT COUNT(*) as cnt FROM users').get().cnt;
-  if (userCount === 0) {
-    console.log('📦 Base vide — seeding...');
+  const userCount  = db.prepare('SELECT COUNT(*) as cnt FROM users').get().cnt;
+  const pharmaCount = db.prepare('SELECT COUNT(*) as cnt FROM pharmacies').get().cnt;
+  if (userCount === 0 || pharmaCount < 8) {
+    console.log('Seeding database...');
     require('./src/database/seed');
   } else {
-    console.log(`✅ Base OK — ${userCount} utilisateur(s)`);
+    console.log(`OK — ${userCount} users, ${pharmaCount} pharmacies`);
   }
 } catch (e) { console.error('Seed error:', e.message); }
 
