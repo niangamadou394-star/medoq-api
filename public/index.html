@@ -590,7 +590,8 @@ function urgencyText(qty) {
 function clearSearchAndBack() {
  document.getElementById('search-input').value = '';
  document.getElementById('search-results').innerHTML = '<div class="empty"><p>Tapez le nom d\'un médicament</p></div>';
- goBack();
+ S.screenStack = [];
+ switchTab('home');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -706,31 +707,37 @@ function doLogout() {
 // ═══════════════════════════════════════════════════════════════════════════
 // PATIENT — HOME
 // ═══════════════════════════════════════════════════════════════════════════
+async function loadGardeCard() {
+ const gc = document.getElementById('garde-card');
+ try {
+   const d = await GET('/pharmacies?limit=10');
+   const list = d.data.pharmacies;
+   const garde = list.find(function(p){ return p.openingHours && p.openingHours.indexOf('24') !== -1; }) || list[0];
+   if (!garde) { gc.innerHTML = ''; return; }
+   var html = '<div style="margin:0 16px 12px;background:linear-gradient(135deg,#1A7A4A,#2E9E64);border-radius:14px;padding:16px;color:#fff;cursor:pointer" onclick="openPharmacy(\'' + garde.id + '\')">';
+   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+   html += '<span style="font-size:11px;font-weight:700;letter-spacing:1px;opacity:.8;text-transform:uppercase">Pharmacie de garde</span>';
+   html += '<span style="font-size:11px;font-weight:700;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px">Ouvert maintenant</span>';
+   html += '</div>';
+   html += '<div style="font-size:17px;font-weight:800">' + garde.name + '</div>';
+   html += '<div style="font-size:13px;opacity:.85;margin-top:4px">' + (garde.address||'') + '</div>';
+   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">';
+   html += '<span style="font-size:13px;font-weight:600">' + (garde.openingHours||'24h/24') + '</span>';
+   html += '<span style="font-size:13px;font-weight:700;background:rgba(255,255,255,.2);padding:7px 16px;border-radius:20px">Voir les medicaments</span>';
+   html += '</div></div>';
+   gc.innerHTML = html;
+ } catch(e) {
+   gc.innerHTML = '';
+ }
+}
+
 async function loadHome() {
+ loadGardeCard();
  try {
  const [pop, nearby] = await Promise.all([
  GET('/medications/popular'),
  GET('/pharmacies?limit=10'),
  ]);
-
- // Garde card — pharmacie 24h
- const gc = document.getElementById('garde-card');
- const garde = nearby.data.pharmacies.find(p => p.openingHours && p.openingHours.includes('24')) || nearby.data.pharmacies[0];
- if (garde) {
- gc.innerHTML = `
- <div style="margin:0 16px 12px;background:linear-gradient(135deg,#1A7A4A,#2E9E64);border-radius:14px;padding:16px;color:#fff;cursor:pointer" onclick="openPharmacy('${garde.id}')">
- <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
- <span style="font-size:11px;font-weight:700;letter-spacing:1px;opacity:.8">PHARMACIE DE GARDE</span>
- <span style="font-size:11px;font-weight:700;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px">Ouvert maintenant</span>
- </div>
- <div style="font-size:17px;font-weight:800">${garde.name}</div>
- <div style="font-size:13px;opacity:.85;margin-top:4px">${garde.address}</div>
- <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
- <span style="font-size:13px;font-weight:600">${garde.openingHours || '24h/24'}</span>
- <span style="font-size:13px;font-weight:700;background:rgba(255,255,255,.2);padding:6px 14px;border-radius:20px">Voir stock</span>
- </div>
- </div>`;
- } else { gc.innerHTML = ''; }
 
  // Popular meds carousel
  const pl = document.getElementById('popular-list');
