@@ -707,60 +707,67 @@ function doLogout() {
 // ═══════════════════════════════════════════════════════════════════════════
 // PATIENT — HOME
 // ═══════════════════════════════════════════════════════════════════════════
-async function loadGardeCard() {
- const gc = document.getElementById('garde-card');
- try {
-   const d = await GET('/pharmacies?limit=10');
-   const list = d.data.pharmacies;
-   const garde = list.find(function(p){ return p.openingHours && p.openingHours.indexOf('24') !== -1; }) || list[0];
-   if (!garde) { gc.innerHTML = ''; return; }
-   var html = '<div style="margin:0 16px 12px;background:linear-gradient(135deg,#1A7A4A,#2E9E64);border-radius:14px;padding:16px;color:#fff;cursor:pointer" onclick="openPharmacy(\'' + garde.id + '\')">';
-   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-   html += '<span style="font-size:11px;font-weight:700;letter-spacing:1px;opacity:.8;text-transform:uppercase">Pharmacie de garde</span>';
-   html += '<span style="font-size:11px;font-weight:700;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px">Ouvert maintenant</span>';
-   html += '</div>';
-   html += '<div style="font-size:17px;font-weight:800">' + garde.name + '</div>';
-   html += '<div style="font-size:13px;opacity:.85;margin-top:4px">' + (garde.address||'') + '</div>';
-   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">';
-   html += '<span style="font-size:13px;font-weight:600">' + (garde.openingHours||'24h/24') + '</span>';
-   html += '<span style="font-size:13px;font-weight:700;background:rgba(255,255,255,.2);padding:7px 16px;border-radius:20px">Voir les medicaments</span>';
-   html += '</div></div>';
-   gc.innerHTML = html;
- } catch(e) {
-   gc.innerHTML = '';
- }
-}
-
 async function loadHome() {
- loadGardeCard();
  try {
- const [pop, nearby] = await Promise.all([
- GET('/medications/popular'),
- GET('/pharmacies?limit=10'),
- ]);
+   const [pop, nearby] = await Promise.all([
+     GET('/medications/popular'),
+     GET('/pharmacies?limit=10'),
+   ]);
+   const pharmacies = nearby.data.pharmacies;
 
- // Popular meds carousel
- const pl = document.getElementById('popular-list');
- pl.innerHTML = '';
- const wrap = document.createElement('div');
- wrap.style.cssText = 'display:flex;gap:12px;padding:4px 16px 16px;overflow-x:auto;box-sizing:border-box;-webkit-overflow-scrolling:touch';
- pop.data.slice(0,8).forEach(m => {
- const el = document.createElement('div');
- el.style.cssText = 'min-width:150px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;flex-shrink:0';
- el.innerHTML = `
- <div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--green);margin-bottom:10px">${m.requiresPrescription?'Rx':'OTC'}</div>
- <div style="font-size:13px;font-weight:700;line-height:1.3;margin-bottom:6px">${m.name}</div>
- <div style="font-size:11px;color:var(--gray)">${m.category||''}</div>
- <div style="margin-top:8px"><span class="badge ${m.requiresPrescription?'badge-orange':'badge-green'}" style="font-size:11px">${m.requiresPrescription?'Ordonnance':'Libre'}</span></div>`;
- el.onclick = () => openMed(m.id);
- wrap.appendChild(el);
- });
- pl.appendChild(wrap);
+   // ── Pharmacie de garde ──────────────────────────────────────
+   var gc = document.getElementById('garde-card');
+   var garde = null;
+   for (var i = 0; i < pharmacies.length; i++) {
+     if (pharmacies[i].openingHours && pharmacies[i].openingHours.indexOf('24') !== -1) {
+       garde = pharmacies[i]; break;
+     }
+   }
+   if (!garde && pharmacies.length > 0) garde = pharmacies[0];
+   if (garde) {
+     var gcard = document.createElement('div');
+     gcard.style.cssText = 'margin:0 16px 12px;background:linear-gradient(135deg,#1A7A4A,#2E9E64);border-radius:14px;padding:16px;color:#fff;cursor:pointer';
+     gcard.onclick = function(){ openPharmacy(garde.id); };
+     gcard.innerHTML =
+       '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;opacity:.8;margin-bottom:10px">PHARMACIE DE GARDE</div>' +
+       '<div style="font-size:18px;font-weight:800;margin-bottom:4px">' + garde.name + '</div>' +
+       '<div style="font-size:13px;opacity:.85;margin-bottom:12px">' + (garde.address||'') + '</div>' +
+       '<div style="display:flex;justify-content:space-between;align-items:center">' +
+         '<span style="font-size:13px;font-weight:600;background:rgba(0,0,0,.15);padding:5px 12px;border-radius:20px">' + (garde.openingHours||'24h/24') + '</span>' +
+         '<span style="font-size:13px;font-weight:700;background:rgba(255,255,255,.25);padding:5px 14px;border-radius:20px">Voir le stock</span>' +
+       '</div>';
+     gc.innerHTML = '';
+     gc.appendChild(gcard);
+   } else {
+     gc.innerHTML = '';
+   }
 
- // Nearby pharmacies
- const nl = document.getElementById('nearby-list');
- nl.innerHTML = '';
- nearby.data.pharmacies.forEach(p => nl.appendChild(buildPhCard(p)));
+   // ── Medicaments populaires ──────────────────────────────────
+   var pl = document.getElementById('popular-list');
+   pl.innerHTML = '';
+   var wrap = document.createElement('div');
+   wrap.style.cssText = 'display:flex;gap:12px;padding:4px 16px 16px;overflow-x:auto;box-sizing:border-box;-webkit-overflow-scrolling:touch';
+   var meds = pop.data || [];
+   meds.slice(0,8).forEach(function(m) {
+     var el = document.createElement('div');
+     el.style.cssText = 'min-width:150px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;flex-shrink:0';
+     var tag = m.requiresPrescription ? '<span class="badge badge-orange" style="font-size:11px">Ordonnance</span>' : '<span class="badge badge-green" style="font-size:11px">Libre</span>';
+     var icon = m.requiresPrescription ? 'Rx' : 'OTC';
+     el.innerHTML =
+       '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);margin-bottom:10px">' + icon + '</div>' +
+       '<div style="font-size:13px;font-weight:700;line-height:1.3;margin-bottom:6px">' + m.name + '</div>' +
+       '<div style="font-size:11px;color:var(--gray);margin-bottom:8px">' + (m.category||'') + '</div>' +
+       tag;
+     el.onclick = function(){ openMed(m.id); };
+     wrap.appendChild(el);
+   });
+   pl.appendChild(wrap);
+
+   // ── Pharmacies proches ──────────────────────────────────────
+   var nl = document.getElementById('nearby-list');
+   nl.innerHTML = '';
+   pharmacies.forEach(function(p){ nl.appendChild(buildPhCard(p)); });
+
  } catch(e) { toast('' + e.message); }
 }
 
