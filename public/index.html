@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1A7A4A">
+<meta name="theme-color" content="#0066FF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Medoq">
@@ -13,17 +13,19 @@
 /* ─── Reset & Base ─────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
- /* ── Medoq Brand (couleur officielle logo #1A7A4A) ── */
- --green:#1A7A4A;--dkgreen:#155D38;--ltgreen:#E8F5EE;--midgreen:#2E9E64;
+ /* ── Medoq Brand (logo officiel: bleu #0066FF + teal #00D4AA) ── */
+ --green:#0066FF;--dkgreen:#0047CC;--ltgreen:#EBF0FF;--midgreen:#3380FF;
+ --teal:#00D4AA;--dkteal:#00A882;--ltteal:#E0FAF6;
  --cmu:#6B3FA0;--ltcmu:#EDE7F6;
- --red:#E53935;--orange:#F57C00;--blue:#1565C0;
- --black:#1A1A1A;--gray:#4A4A4A;--lgray:#F5F5F5;--mgray:#E0E0E0;
- --white:#FFFFFF;--shadow:0 2px 16px rgba(26,122,74,.12);
+ --red:#E53935;--orange:#F57C00;--blue:#0066FF;
+ --dark:#0A0E1A;
+ --black:#0A0E1A;--gray:#546070;--lgray:#F0F4FB;--mgray:#D8E0EC;
+ --white:#FFFFFF;--shadow:0 2px 16px rgba(0,102,255,.10);
  --radius:16px;--radius-sm:10px;
  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
 }
 html,body{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;margin:0;padding:0}
-body{font-family:var(--font);background:#F0F4F1;color:var(--black)}
+body{font-family:var(--font);background:#F0F4FB;color:var(--black)}
 #app{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;background:var(--white);overflow:hidden;clip-path:inset(0)}
 
 /* ─── Screens ──────────────────────────────────────────────────────────── */
@@ -33,24 +35,25 @@ body{font-family:var(--font);background:#F0F4F1;color:var(--black)}
 
 /* ─── Topbar ───────────────────────────────────────────────────────────── */
 .topbar{display:flex;align-items:center;padding:16px 16px 12px;background:var(--white);border-bottom:1px solid var(--mgray);flex-shrink:0;min-height:60px}
+.topbar-home{background:linear-gradient(135deg,#0A0E1A 0%,#0D1A3A 100%);border-bottom:none}
 .topbar-title{font-size:17px;font-weight:700;color:var(--black);flex:1;text-align:center}
-.topbar-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 12px;border-radius:20px;background:var(--lgray);border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--gray);font-family:var(--font);white-space:nowrap}
+.topbar-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 12px;border-radius:20px;background:var(--lgray);border:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--gray);font-family:var(--font);white-space:nowrap;transition:background .15s}
 .topbar-btn:active{background:var(--mgray)}
-.topbar-logo{font-size:22px;font-weight:800;color:var(--black);flex:1}
-.topbar-logo span{color:var(--green)}
+.topbar-logo{font-size:22px;font-weight:800;color:var(--black);flex:1;letter-spacing:-.3px}
+.topbar-logo span{color:var(--teal)}
 
 /* ─── Bottom Nav ───────────────────────────────────────────────────────── */
 .bnav{display:flex;background:var(--white);border-top:1px solid var(--mgray);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
-.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 6px;border:none;background:none;cursor:pointer;color:var(--gray);font-size:10px;font-weight:600;font-family:var(--font);border-top:3px solid transparent;gap:2px}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;border:none;background:none;cursor:pointer;color:var(--gray);font-size:10px;font-weight:700;font-family:var(--font);border-top:3px solid transparent;gap:3px;transition:color .15s}
 .bnav-icon{font-size:20px;line-height:1.2}
-.bnav-item.active{color:var(--green);border-top-color:var(--green)}
+.bnav-item.active{color:var(--green);border-top-color:var(--green);font-weight:700}
 
 /* ─── Scroll area ─────────────────────────────────────────────────────── */
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:16px}
 .scroll::-webkit-scrollbar{display:none}
 
 /* ─── Cards ─────────────────────────────────────────────────────────────── */
-.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin:12px 16px;overflow:hidden}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:0 2px 16px rgba(0,102,255,.08);margin:12px 16px;overflow:hidden}
 .card-body{padding:16px}
 .card-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--lgray)}
 .card-row:last-child{border-bottom:none}
@@ -65,7 +68,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 /* ─── Buttons ─────────────────────────────────────────────────────────── */
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:var(--radius-sm);border:none;font-size:16px;font-weight:700;font-family:var(--font);cursor:pointer;transition:opacity .15s,transform .1s}
 .btn:active{opacity:.85;transform:scale(.98)}
-.btn-primary{background:var(--green);color:var(--white)}
+.btn-primary{background:linear-gradient(135deg,#0066FF,#00D4AA);color:var(--white)}
 .btn-outline{background:var(--white);color:var(--green);border:1.5px solid var(--green)}
 .btn-danger{background:var(--red);color:var(--white)}
 .btn-sm{padding:10px 16px;font-size:14px;width:auto;border-radius:20px}
@@ -74,13 +77,14 @@ input.no-icon,select.no-icon{padding-left:14px}
 /* ─── Badges / Tags ─────────────────────────────────────────────────────── */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
 .badge-green{background:var(--ltgreen);color:var(--dkgreen)}
+.badge-teal{background:var(--ltteal);color:var(--dkteal)}
 .badge-orange{background:#FFF3E0;color:var(--orange)}
 .badge-red{background:#FFEBEE;color:var(--red)}
 .badge-blue{background:#E3F2FD;color:var(--blue)}
 .badge-gray{background:var(--lgray);color:var(--gray)}
 
 /* ─── Section label ─────────────────────────────────────────────────────── */
-.section-label{padding:16px 16px 8px;font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.8px}
+.section-label{padding:14px 16px 6px;font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px}
 
 /* ─── Empty state ─────────────────────────────────────────────────────── */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px;gap:12px;color:var(--gray)}
@@ -93,11 +97,11 @@ input.no-icon,select.no-icon{padding-left:14px}
 
 /* ─── Loader ─────────────────────────────────────────────────────────────── */
 .loader{display:flex;align-items:center;justify-content:center;padding:40px}
-.spinner{width:36px;height:36px;border:3px solid var(--ltgreen);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{width:36px;height:36px;border:3px solid var(--lgray);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ─── Avatar ─────────────────────────────────────────────────────────────── */
-.avatar{width:44px;height:44px;border-radius:50%;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--green);font-weight:700;flex-shrink:0}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--teal));display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;flex-shrink:0}
 
 /* ─── Stat box ─────────────────────────────────────────────────────────── */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 12px}
@@ -109,7 +113,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 .tabs{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;flex-shrink:0}
 .tabs::-webkit-scrollbar{display:none}
 .tab{padding:8px 18px;border-radius:20px;border:1.5px solid var(--mgray);background:var(--white);font-size:13px;font-weight:600;color:var(--gray);white-space:nowrap;cursor:pointer;font-family:var(--font)}
-.tab.active{background:var(--green);color:var(--white);border-color:var(--green)}
+.tab.active{background:linear-gradient(135deg,var(--green),var(--teal));color:var(--white);border-color:var(--green)}
 
 /* ─── Pharmacy card ─────────────────────────────────────────────────────── */
 .ph-card{margin:0 16px 12px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
@@ -120,7 +124,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 .ph-actions{display:flex;gap:8px;padding:0 16px 14px}
 
 /* ─── Login screen ─────────────────────────────────────────────────────── */
-#screen-login{overflow-y:auto;background:linear-gradient(160deg,#f0f9f4 0%,var(--white) 60%)}
+#screen-login{overflow-y:auto;background:linear-gradient(160deg,#EBF0FF 0%,var(--white) 60%)}
 .login-logo{text-align:center;padding:0 0 32px}
 .login-logo .big{font-size:52px;font-weight:900;color:var(--black)}
 .login-logo .big span{color:var(--green)}
@@ -182,23 +186,23 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- PATIENT — HOME -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-home">
- <div class="topbar">
- <div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="color:var(--green)">oq</span></div>
+ <div class="topbar topbar-home">
+ <div class="topbar-logo" style="color:#E8EDF5;font-size:22px;font-weight:800;letter-spacing:-.3px"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div>
  <div style="display:flex;gap:8px">
- <button class="topbar-btn" onclick="goScreen('screen-notifs')"></button>
- <button class="topbar-btn" onclick="goScreen('screen-profile')"></button>
+ <button class="topbar-btn" style="background:rgba(255,255,255,.12);color:#E8EDF5" onclick="goScreen('screen-notifs')">🔔</button>
+ <button class="topbar-btn" style="background:rgba(255,255,255,.12);color:#E8EDF5" onclick="switchTab('profile')">👤</button>
  </div>
  </div>
  <div class="scroll" id="home-scroll">
  <!-- Greeting -->
- <div style="padding:20px 16px 8px">
- <div style="font-size:14px;color:var(--gray)">Bonjour </div>
- <div style="font-size:20px;font-weight:800;color:var(--black);margin-top:2px" id="home-name">—</div>
+ <div style="padding:20px 16px 12px;background:linear-gradient(135deg,#0A0E1A,#0D1A3A)">
+ <div style="font-size:13px;color:rgba(232,237,245,.7)">Bonjour 👋</div>
+ <div style="font-size:21px;font-weight:800;color:#E8EDF5;margin-top:2px" id="home-name">-</div>
  </div>
  <!-- Search bar -->
- <div style="padding:8px 16px 16px">
- <button onclick="switchTab('search')" style="width:100%;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:28px;background:var(--lgray);border:none;cursor:pointer;font-size:15px;color:var(--gray);font-family:var(--font);text-align:left">
-  <span style="font-size:18px;flex-shrink:0">🔍</span>
+ <div style="padding:8px 16px 16px;background:linear-gradient(180deg,#0D1A3A 0%,#F0F4FB 100%)">
+ <button onclick="switchTab('search')" style="width:100%;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:28px;background:#F0F4FB;border:1.5px solid var(--mgray);cursor:pointer;font-size:15px;color:var(--gray);font-family:var(--font);text-align:left;box-shadow:0 2px 8px rgba(0,102,255,.06)">
+  <span style="font-size:18px;flex-shrink:0;color:var(--green)">🔍</span>
   <span>Médicament, pharmacie...</span>
  </button>
  </div>
@@ -228,7 +232,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- PATIENT — SEARCH -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-search">
- <div class="topbar">
+ <div class="topbar" style="padding:12px 16px 10px">
  <div class="input-wrap" style="margin:0;flex:1;position:relative">
  <input id="search-input" placeholder="Médicament, pharmacie..." autocomplete="off" type="text" enterkeyhint="search"
  style="border-radius:24px;background:var(--lgray);border-color:transparent;padding-right:40px">
@@ -352,7 +356,7 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  <div id="delivery-address-wrap" style="display:none;margin-top:12px">
  <input type="text" id="delivery-address-input" class="no-icon" placeholder="Adresse de livraison complète...">
- <div style="font-size:12px;color:var(--gray);margin-top:6px">Délai estimé : 30–60 min · Dakar intramuros</div>
+ <div style="font-size:12px;color:var(--gray);margin-top:6px">Délai estimé : 30-60 min · Dakar intramuros</div>
  </div>
  </div>
  </div>
@@ -398,7 +402,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-reservations">
  <div class="topbar">
- <div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="color:var(--green)">oq</span></div>
+ <div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div>
  </div>
  <div class="tabs">
  <button class="tab active" onclick="filterResas(this,'')">Toutes</button>
@@ -420,7 +424,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- PATIENT — PROFILE -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-profile">
- <div class="topbar"><div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="color:var(--green)">oq</span></div></div>
+ <div class="topbar"><div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div></div>
  <div class="scroll">
  <div style="padding:24px 16px 16px;display:flex;align-items:center;gap:16px">
  <div class="avatar" style="width:64px;height:64px;font-size:24px" id="profile-avatar">A</div>
@@ -457,7 +461,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-pdash">
  <div class="topbar">
- <div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="color:var(--green)">oq</span></div>
+ <div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div>
  <button class="topbar-btn" onclick="doLogout()">Quitter</button>
  </div>
  <div class="scroll" id="pdash-scroll">
@@ -468,7 +472,7 @@ input.no-icon,select.no-icon{padding-left:14px}
  <div class="stat-grid" id="pdash-stats">
  <div class="stat-box"><div class="stat-val" id="stat-today">—</div><div class="stat-lbl">Reservations aujourd'hui</div></div>
  <div class="stat-box"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">En attente</div></div>
- <div class="stat-box" style="grid-column:1/-1;background:var(--ltgreen)"><div class="stat-val" id="stat-revenue" style="font-size:22px">—</div><div class="stat-lbl" style="color:var(--dkgreen)">Revenus via Medoq (commandes confirmees)</div></div>
+ <div class="stat-box" style="grid-column:1/-1;background:linear-gradient(135deg,#EBF0FF,#E0FAF6)"><div class="stat-val" id="stat-revenue" style="font-size:22px">—</div><div class="stat-lbl" style="color:var(--dkteal)">Revenus via Medoq (commandes confirmees)</div></div>
  <div class="stat-box"><div class="stat-val" id="stat-completed">—</div><div class="stat-lbl">Terminees</div></div>
  <div class="stat-box"><div class="stat-val" id="stat-low" style="color:var(--orange)">—</div><div class="stat-lbl">Alertes stock bas</div></div>
  </div>
