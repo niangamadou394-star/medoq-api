@@ -12,6 +12,13 @@ function validate(req, res, next) {
   next();
 }
 
+// POST /api/v1/auth/send-otp
+router.post('/send-otp',
+  body('phone').notEmpty().withMessage('Téléphone requis'),
+  validate,
+  ctrl.sendOtp
+);
+
 // POST /api/v1/auth/register
 router.post('/register',
   body('phone').notEmpty().withMessage('Téléphone requis'),
@@ -44,5 +51,21 @@ router.get('/me', authenticate, ctrl.me);
 
 // PUT /api/v1/auth/me
 router.put('/me', authenticate, ctrl.updateMe);
+
+// POST /api/v1/auth/forgot-password
+router.post('/forgot-password',
+  body('phone').notEmpty().withMessage('Téléphone requis'),
+  validate,
+  ctrl.forgotPassword
+);
+
+// POST /api/v1/auth/reset-password
+router.post('/reset-password',
+  body('phone').notEmpty().withMessage('Téléphone requis'),
+  body('otp').notEmpty().withMessage('Code OTP requis'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Mot de passe min 6 caractères'),
+  validate,
+  ctrl.resetPassword
+);
 
 module.exports = router;
