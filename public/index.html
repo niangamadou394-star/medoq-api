@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#009F76">
+<meta name="theme-color" content="#1A7A4A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Medoq">
@@ -13,18 +13,17 @@
 /* ─── Reset & Base ─────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
- /* ── Medoq Brand ────────────────────────────────────── */
- --green:#009F76;--dkgreen:#007A5A;--ltgreen:#E0F7F0;--midgreen:#00C490;
- --gold:#F5A623;
+ /* ── Medoq Brand (couleur officielle logo #1A7A4A) ── */
+ --green:#1A7A4A;--dkgreen:#155D38;--ltgreen:#E8F5EE;--midgreen:#2E9E64;
  --cmu:#6B3FA0;--ltcmu:#EDE7F6;
  --red:#E53935;--orange:#F57C00;--blue:#1565C0;
- --black:#0F1B2E;--gray:#4E6070;--lgray:#F0F4F7;--mgray:#D8E0E8;
- --white:#FFFFFF;--shadow:0 4px 20px rgba(0,159,118,.12);
+ --black:#1A1A1A;--gray:#4A4A4A;--lgray:#F5F5F5;--mgray:#E0E0E0;
+ --white:#FFFFFF;--shadow:0 2px 16px rgba(26,122,74,.12);
  --radius:16px;--radius-sm:10px;
  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
 }
 html,body{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;margin:0;padding:0}
-body{font-family:var(--font);background:#EBF5F1;color:var(--black)}
+body{font-family:var(--font);background:#F0F4F1;color:var(--black)}
 #app{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;background:var(--white);overflow:hidden;clip-path:inset(0)}
 
 /* ─── Screens ──────────────────────────────────────────────────────────── */
@@ -121,7 +120,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 .ph-actions{display:flex;gap:8px;padding:0 16px 14px}
 
 /* ─── Login screen ─────────────────────────────────────────────────────── */
-#screen-login{overflow-y:auto;background:linear-gradient(160deg,#e0f7f0 0%,var(--white) 60%)}
+#screen-login{overflow-y:auto;background:linear-gradient(160deg,#f0f9f4 0%,var(--white) 60%)}
 .login-logo{text-align:center;padding:0 0 32px}
 .login-logo .big{font-size:52px;font-weight:900;color:var(--black)}
 .login-logo .big span{color:var(--green)}
@@ -369,10 +368,7 @@ input.no-icon,select.no-icon{padding-left:14px}
    </div>
   </div>
   <div id="rx-pickup-msg" style="font-size:13px;background:#FFF8E1;border-radius:10px;padding:10px 12px;color:#6D4C00;margin-bottom:12px;line-height:1.5">
-   📍 <strong>Retrait en pharmacie :</strong> Présentez votre ordonnance originale au pharmacien lors du retrait.
-  </div>
-  <div id="rx-delivery-msg" style="display:none;font-size:13px;background:#E8F4FD;border-radius:10px;padding:10px 12px;color:#0D47A1;margin-bottom:12px;line-height:1.5">
-   🚚 <strong>Livraison :</strong> Votre ordonnance sera vérifiée à la livraison. Préparez l'original ou une photo claire à remettre au livreur.
+   📍 <strong>Retrait en pharmacie obligatoire.</strong> Présentez votre ordonnance originale au pharmacien. Le paiement s'effectue sur place, quelle que soit la méthode choisie.
   </div>
   <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:var(--lgray);border-radius:10px">
    <input type="checkbox" id="rx-checkbox" style="width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:var(--green)">
@@ -1100,24 +1096,25 @@ function openReserve(pharma, med, price) {
  document.getElementById('res-price').textContent = fmtFCFA(price);
  updateResTotal();
 
- // Paiement : ordonnance = espèces uniquement
+ // Modes de paiement — toutes méthodes disponibles (Wave, Orange Money, Cash)
  const methods = document.getElementById('payment-methods');
  const info = document.getElementById('res-expiry-info');
- if (med.requiresPrescription) {
- methods.innerHTML = '<button class="tab active" onclick="selectPayment(this,\'CASH\')">Espèces en pharmacie</button>';
- S.resPayment = 'CASH';
- info.style.background = '#FFF3E0';
- info.style.color = '#E65100';
- info.innerHTML = 'Ce médicament nécessite une ordonnance. Paiement en espèces uniquement à la pharmacie.';
- } else {
+ const deliveryCard = document.getElementById('delivery-card');
  methods.innerHTML = `
  <button class="tab active" onclick="selectPayment(this,'WAVE')">Wave</button>
  <button class="tab" onclick="selectPayment(this,'ORANGE_MONEY')">Orange Money</button>
  <button class="tab" onclick="selectPayment(this,'CASH')">Cash</button>`;
  S.resPayment = 'WAVE';
- info.style.background = '';
- info.style.color = '';
- info.innerHTML = 'Votre médicament sera réservé pendant 2 heures';
+ if (med.requiresPrescription) {
+   // Rx : paiement uniquement à la pharmacie, livraison non disponible
+   info.style.cssText = 'margin-top:12px;padding:10px 12px;background:#FFF3E0;border-radius:var(--radius-sm);font-size:13px;color:#E65100';
+   info.innerHTML = '⚕️ Paiement uniquement à la pharmacie lors du retrait de votre ordonnance.';
+   if (deliveryCard) deliveryCard.style.display = 'none';
+   S.resDelivery = 'PICKUP';
+ } else {
+   info.style.cssText = 'margin-top:12px;padding:10px 12px;background:var(--ltgreen);border-radius:var(--radius-sm);font-size:13px;color:var(--dkgreen)';
+   info.innerHTML = 'Votre médicament sera réservé pendant 2 heures';
+   if (deliveryCard) deliveryCard.style.display = 'block';
  }
  // Reset delivery UI
  document.getElementById('delivery-address-wrap').style.display = 'none';
@@ -1130,14 +1127,8 @@ function openReserve(pharma, med, price) {
  // Show/hide ordonnance card
  var rxCard = document.getElementById('rx-card');
  if (rxCard) {
-   if (med.requiresPrescription) {
-     rxCard.style.display = 'block';
-     document.getElementById('rx-checkbox').checked = false;
-     document.getElementById('rx-pickup-msg').style.display = 'block';
-     document.getElementById('rx-delivery-msg').style.display = 'none';
-   } else {
-     rxCard.style.display = 'none';
-   }
+   rxCard.style.display = med.requiresPrescription ? 'block' : 'none';
+   if (med.requiresPrescription) document.getElementById('rx-checkbox').checked = false;
  }
  goScreen('screen-reserve');
 }
@@ -1154,13 +1145,6 @@ function selectDelivery(btn, type) {
  } else {
    wrap.style.display = 'none';
    if (row) row.style.display = 'none';
- }
- // Toggle Rx messages for delivery vs pickup
- var rxPick = document.getElementById('rx-pickup-msg');
- var rxDel  = document.getElementById('rx-delivery-msg');
- if (rxPick && rxDel) {
-   rxPick.style.display = (type === 'PICKUP') ? 'block' : 'none';
-   rxDel.style.display  = (type === 'DELIVERY') ? 'block' : 'none';
  }
  updateResTotal();
 }
