@@ -957,16 +957,13 @@ async function loadCategories() {
  const b = document.createElement('button');
  b.className = 'tab';
  b.textContent = cat;
- b.onclick = function() {
- document.getElementById('search-input').value = cat;
- doSearch(cat);
- };
+ b.setAttribute('data-cat', cat);
  el.appendChild(b);
  });
  } catch(_) {}
 }
 
-// Event delegation for search results and pharmacy cards (iOS-safe)
+// Event delegation for search results, pharmacy cards, category tabs (iOS-safe)
 document.addEventListener('DOMContentLoaded', function() {
  // Robust search input — fires on input, keyup, compositionend for iOS Safari
  var sInp = document.getElementById('search-input');
@@ -976,6 +973,19 @@ document.addEventListener('DOMContentLoaded', function() {
    sInp.addEventListener('keyup', triggerSearch);
    sInp.addEventListener('compositionend', triggerSearch);
  }
+ // Category tabs — event delegation (iOS-safe, works on dynamically created buttons)
+ document.getElementById('search-cats').addEventListener('click', function(e) {
+   var btn = e.target.closest('[data-cat]');
+   if (!btn) return;
+   var cat = btn.getAttribute('data-cat');
+   // Active state
+   document.querySelectorAll('#search-cats .tab').forEach(function(b) { b.classList.remove('active'); });
+   btn.classList.add('active');
+   // Fill input + trigger search
+   var inp = document.getElementById('search-input');
+   if (inp) inp.value = cat;
+   doSearch(cat);
+ });
  document.getElementById('search-results').addEventListener('click', function(e) {
    var med = e.target.closest('[data-med-id]');
    var ph  = e.target.closest('[data-ph-id]');
