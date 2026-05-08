@@ -1108,7 +1108,7 @@ function openReserve(pharma, med, price) {
  if (med.requiresPrescription) {
    // Rx : paiement uniquement à la pharmacie, livraison non disponible
    info.style.cssText = 'margin-top:12px;padding:10px 12px;background:#FFF3E0;border-radius:var(--radius-sm);font-size:13px;color:#E65100';
-   info.innerHTML = '⚕️ Paiement uniquement à la pharmacie lors du retrait de votre ordonnance.';
+   info.innerHTML = '⚕️ Paiement uniquement à la pharmacie lors du retrait.';
    if (deliveryCard) deliveryCard.style.display = 'none';
    S.resDelivery = 'PICKUP';
  } else {
