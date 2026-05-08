@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1A7A4A">
+<meta name="theme-color" content="#009F76">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Medoq">
@@ -13,15 +13,18 @@
 /* ─── Reset & Base ─────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
- --green:#1A7A4A;--dkgreen:#155D38;--ltgreen:#E8F5EE;--midgreen:#2E9E64;
+ /* ── Medoq Brand ────────────────────────────────────── */
+ --green:#009F76;--dkgreen:#007A5A;--ltgreen:#E0F7F0;--midgreen:#00C490;
+ --gold:#F5A623;
+ --cmu:#6B3FA0;--ltcmu:#EDE7F6;
  --red:#E53935;--orange:#F57C00;--blue:#1565C0;
- --black:#1A1A1A;--gray:#4A4A4A;--lgray:#F5F5F5;--mgray:#E0E0E0;
- --white:#FFFFFF;--shadow:0 2px 12px rgba(0,0,0,.10);
- --radius:14px;--radius-sm:8px;
+ --black:#0F1B2E;--gray:#4E6070;--lgray:#F0F4F7;--mgray:#D8E0E8;
+ --white:#FFFFFF;--shadow:0 4px 20px rgba(0,159,118,.12);
+ --radius:16px;--radius-sm:10px;
  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
 }
 html,body{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;margin:0;padding:0}
-body{font-family:var(--font);background:#F0F4F1;color:var(--black)}
+body{font-family:var(--font);background:#EBF5F1;color:var(--black)}
 #app{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;background:var(--white);overflow:hidden;clip-path:inset(0)}
 
 /* ─── Screens ──────────────────────────────────────────────────────────── */
@@ -39,7 +42,8 @@ body{font-family:var(--font);background:#F0F4F1;color:var(--black)}
 
 /* ─── Bottom Nav ───────────────────────────────────────────────────────── */
 .bnav{display:flex;background:var(--white);border-top:1px solid var(--mgray);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
-.bnav-item{flex:1;display:flex;align-items:center;justify-content:center;padding:14px 4px;border:none;background:none;cursor:pointer;color:var(--gray);font-size:11px;font-weight:600;font-family:var(--font);border-top:2px solid transparent}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 6px;border:none;background:none;cursor:pointer;color:var(--gray);font-size:10px;font-weight:600;font-family:var(--font);border-top:3px solid transparent;gap:2px}
+.bnav-icon{font-size:20px;line-height:1.2}
 .bnav-item.active{color:var(--green);border-top-color:var(--green)}
 
 /* ─── Scroll area ─────────────────────────────────────────────────────── */
@@ -117,7 +121,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 .ph-actions{display:flex;gap:8px;padding:0 16px 14px}
 
 /* ─── Login screen ─────────────────────────────────────────────────────── */
-#screen-login{overflow-y:auto;background:linear-gradient(160deg,#f0f9f4 0%,var(--white) 60%)}
+#screen-login{overflow-y:auto;background:linear-gradient(160deg,#e0f7f0 0%,var(--white) 60%)}
 .login-logo{text-align:center;padding:0 0 32px}
 .login-logo .big{font-size:52px;font-weight:900;color:var(--black)}
 .login-logo .big span{color:var(--green)}
@@ -194,29 +198,30 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  <!-- Search bar -->
  <div style="padding:8px 16px 16px">
- <div style="position:relative">
- <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px"></span>
- <input style="padding-left:44px;border-radius:24px;background:var(--lgray);border-color:transparent;font-size:15px"
- placeholder="Rechercher un médicament..." id="home-search"
- onclick="goScreen('screen-search')" readonly>
- </div>
+ <button onclick="switchTab('search')" style="width:100%;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:28px;background:var(--lgray);border:none;cursor:pointer;font-size:15px;color:var(--gray);font-family:var(--font);text-align:left">
+  <span style="font-size:18px;flex-shrink:0">🔍</span>
+  <span>Médicament, pharmacie...</span>
+ </button>
  </div>
  <!-- Pharmacie de garde -->
- <div class="section-label">Pharmacie de garde</div>
+ <div class="section-label">🏥 Pharmacie de garde</div>
  <div id="garde-card" onclick="openCurrentGarde()" style="cursor:pointer"><div class="loader"><div class="spinner"></div></div></div>
+ <!-- CMU -->
+ <div class="section-label" style="display:flex;align-items:center;gap:8px">💊 Médicaments remboursés <span style="background:var(--ltcmu);color:var(--cmu);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">CMU</span></div>
+ <div id="cmu-list"><div class="loader"><div class="spinner"></div></div></div>
  <!-- Popular -->
- <div class="section-label">Médicaments populaires</div>
+ <div class="section-label">⭐ Médicaments populaires</div>
  <div id="popular-list"><div class="loader"><div class="spinner"></div></div></div>
  <!-- Nearby pharmacies -->
- <div class="section-label">Pharmacies proches</div>
+ <div class="section-label">📍 Pharmacies proches</div>
  <div id="nearby-list"><div class="loader"><div class="spinner"></div></div></div>
  </div>
  <!-- Bottom nav -->
- <nav class="bnav">
- <button class="bnav-item active" onclick="switchTab('home')">Accueil</button>
- <button class="bnav-item" onclick="switchTab('search')">Recherche</button>
- <button class="bnav-item" onclick="switchTab('reservations')">Réservations</button>
- <button class="bnav-item" onclick="switchTab('profile')">Profil</button>
+<nav class="bnav">
+ <button class="bnav-item active" onclick="switchTab('home')"><span class="bnav-icon">🏠</span>Accueil</button>
+ <button class="bnav-item" onclick="switchTab('search')"><span class="bnav-icon">🔍</span>Recherche</button>
+ <button class="bnav-item" onclick="switchTab('reservations')"><span class="bnav-icon">📋</span>Mes résa</button>
+ <button class="bnav-item" onclick="switchTab('profile')"><span class="bnav-icon">👤</span>Profil</button>
  </nav>
 </div>
 
@@ -226,8 +231,8 @@ input.no-icon,select.no-icon{padding-left:14px}
 <div class="screen hidden" id="screen-search">
  <div class="topbar">
  <div class="input-wrap" style="margin:0;flex:1;position:relative">
- <input id="search-input" placeholder="Médicament, pharmacie..." autocomplete="off" type="search"
- style="border-radius:24px;background:var(--lgray);border-color:transparent;padding-right:40px;-webkit-appearance:none">
+ <input id="search-input" placeholder="Médicament, pharmacie..." autocomplete="off" type="text" enterkeyhint="search"
+ style="border-radius:24px;background:var(--lgray);border-color:transparent;padding-right:40px">
  <button onclick="doSearch(document.getElementById('search-input').value)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;cursor:pointer;padding:4px;color:var(--green)">🔍</button>
  </div>
  <button style="margin-left:10px;flex-shrink:0;background:none;border:none;font-size:15px;font-weight:600;color:var(--green);cursor:pointer;padding:8px 4px" onclick="clearSearchAndBack()">Annuler</button>
@@ -352,6 +357,29 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  </div>
  </div>
+
+ <!-- ORDONNANCE CARD — shown only for Rx medications -->
+ <div class="card" id="rx-card" style="display:none;border:2px solid #FFE0B2">
+ <div class="card-body">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+   <div style="width:42px;height:42px;border-radius:50%;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⚕️</div>
+   <div>
+    <div style="font-size:15px;font-weight:800;color:#E65100">Médicament sur ordonnance</div>
+    <div style="font-size:12px;color:var(--gray)">Prescription médicale obligatoire</div>
+   </div>
+  </div>
+  <div id="rx-pickup-msg" style="font-size:13px;background:#FFF8E1;border-radius:10px;padding:10px 12px;color:#6D4C00;margin-bottom:12px;line-height:1.5">
+   📍 <strong>Retrait en pharmacie :</strong> Présentez votre ordonnance originale au pharmacien lors du retrait.
+  </div>
+  <div id="rx-delivery-msg" style="display:none;font-size:13px;background:#E8F4FD;border-radius:10px;padding:10px 12px;color:#0D47A1;margin-bottom:12px;line-height:1.5">
+   🚚 <strong>Livraison :</strong> Votre ordonnance sera vérifiée à la livraison. Préparez l'original ou une photo claire à remettre au livreur.
+  </div>
+  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:var(--lgray);border-radius:10px">
+   <input type="checkbox" id="rx-checkbox" style="width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:var(--green)">
+   <span style="font-size:13px;font-weight:600;line-height:1.5;color:var(--black)">Je confirme avoir une ordonnance médicale valide pour ce médicament</span>
+  </label>
+ </div>
+ </div>
  <div class="card">
  <div class="card-body">
  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px" id="res-delivery-row" style="display:none">
@@ -384,11 +412,11 @@ input.no-icon,select.no-icon{padding-left:14px}
  <button class="tab" onclick="filterResas(this,'CANCELLED')">Annulées</button>
  </div>
  <div class="scroll" id="resa-list"><div class="loader"><div class="spinner"></div></div></div>
- <nav class="bnav">
- <button class="bnav-item" onclick="switchTab('home')">Accueil</button>
- <button class="bnav-item" onclick="switchTab('search')">Recherche</button>
- <button class="bnav-item active" onclick="switchTab('reservations')">Réservations</button>
- <button class="bnav-item" onclick="switchTab('profile')">Profil</button>
+<nav class="bnav">
+ <button class="bnav-item" onclick="switchTab('home')"><span class="bnav-icon">🏠</span>Accueil</button>
+ <button class="bnav-item" onclick="switchTab('search')"><span class="bnav-icon">🔍</span>Recherche</button>
+ <button class="bnav-item active" onclick="switchTab('reservations')"><span class="bnav-icon">📋</span>Mes résa</button>
+ <button class="bnav-item" onclick="switchTab('profile')"><span class="bnav-icon">👤</span>Profil</button>
  </nav>
 </div>
 
@@ -420,11 +448,11 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  <div class="btn-wrap" style="padding-top:8px"><button class="btn btn-outline" onclick="doLogout()">Se déconnecter</button></div>
  </div>
- <nav class="bnav">
- <button class="bnav-item" onclick="switchTab('home')">Accueil</button>
- <button class="bnav-item" onclick="switchTab('search')">Recherche</button>
- <button class="bnav-item" onclick="switchTab('reservations')">Réservations</button>
- <button class="bnav-item active" onclick="switchTab('profile')">Profil</button>
+<nav class="bnav">
+ <button class="bnav-item" onclick="switchTab('home')"><span class="bnav-icon">🏠</span>Accueil</button>
+ <button class="bnav-item" onclick="switchTab('search')"><span class="bnav-icon">🔍</span>Recherche</button>
+ <button class="bnav-item" onclick="switchTab('reservations')"><span class="bnav-icon">📋</span>Mes résa</button>
+ <button class="bnav-item active" onclick="switchTab('profile')"><span class="bnav-icon">👤</span>Profil</button>
  </nav>
 </div>
 
@@ -451,11 +479,11 @@ input.no-icon,select.no-icon{padding-left:14px}
  <div class="section-label">Dernières réservations</div>
  <div id="pdash-resas"></div>
  </div>
- <nav class="bnav">
- <button class="bnav-item active" onclick="pSwitchTab('pdash')">Dashboard</button>
- <button class="bnav-item" onclick="pSwitchTab('presas')">Réservations</button>
- <button class="bnav-item" onclick="pSwitchTab('pstock')">Stock</button>
- <button class="bnav-item" onclick="pSwitchTab('pprofil')">Profil</button>
+<nav class="bnav">
+ <button class="bnav-item active" onclick="pSwitchTab('pdash')"><span class="bnav-icon">📊</span>Dashboard</button>
+ <button class="bnav-item" onclick="pSwitchTab('presas')"><span class="bnav-icon">📋</span>Commandes</button>
+ <button class="bnav-item" onclick="pSwitchTab('pstock')"><span class="bnav-icon">📦</span>Stock</button>
+ <button class="bnav-item" onclick="pSwitchTab('pprofil')"><span class="bnav-icon">👤</span>Profil</button>
  </nav>
 </div>
 
@@ -471,11 +499,11 @@ input.no-icon,select.no-icon{padding-left:14px}
  <button class="tab" onclick="filterPhResas(this,'COMPLETED')">Terminées</button>
  </div>
  <div class="scroll" id="presas-list"><div class="loader"><div class="spinner"></div></div></div>
- <nav class="bnav">
- <button class="bnav-item" onclick="pSwitchTab('pdash')">Dashboard</button>
- <button class="bnav-item active" onclick="pSwitchTab('presas')">Réservations</button>
- <button class="bnav-item" onclick="pSwitchTab('pstock')">Stock</button>
- <button class="bnav-item" onclick="pSwitchTab('pprofil')">Profil</button>
+<nav class="bnav">
+ <button class="bnav-item" onclick="pSwitchTab('pdash')"><span class="bnav-icon">📊</span>Dashboard</button>
+ <button class="bnav-item active" onclick="pSwitchTab('presas')"><span class="bnav-icon">📋</span>Commandes</button>
+ <button class="bnav-item" onclick="pSwitchTab('pstock')"><span class="bnav-icon">📦</span>Stock</button>
+ <button class="bnav-item" onclick="pSwitchTab('pprofil')"><span class="bnav-icon">👤</span>Profil</button>
  </nav>
 </div>
 
@@ -491,11 +519,11 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  </div>
  <div class="scroll" id="stock-list"><div class="loader"><div class="spinner"></div></div></div>
- <nav class="bnav">
- <button class="bnav-item" onclick="pSwitchTab('pdash')">Dashboard</button>
- <button class="bnav-item" onclick="pSwitchTab('presas')">Réservations</button>
- <button class="bnav-item active" onclick="pSwitchTab('pstock')">Stock</button>
- <button class="bnav-item" onclick="pSwitchTab('pprofil')">Profil</button>
+<nav class="bnav">
+ <button class="bnav-item" onclick="pSwitchTab('pdash')"><span class="bnav-icon">📊</span>Dashboard</button>
+ <button class="bnav-item" onclick="pSwitchTab('presas')"><span class="bnav-icon">📋</span>Commandes</button>
+ <button class="bnav-item active" onclick="pSwitchTab('pstock')"><span class="bnav-icon">📦</span>Stock</button>
+ <button class="bnav-item" onclick="pSwitchTab('pprofil')"><span class="bnav-icon">👤</span>Profil</button>
  </nav>
 </div>
 
@@ -521,11 +549,11 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  <div class="btn-wrap" style="padding-top:8px"><button class="btn btn-outline" onclick="doLogout()">Se déconnecter</button></div>
  </div>
- <nav class="bnav">
- <button class="bnav-item" onclick="pSwitchTab('pdash')">Dashboard</button>
- <button class="bnav-item" onclick="pSwitchTab('presas')">Réservations</button>
- <button class="bnav-item" onclick="pSwitchTab('pstock')">Stock</button>
- <button class="bnav-item active" onclick="pSwitchTab('pprofil')">Profil</button>
+<nav class="bnav">
+ <button class="bnav-item" onclick="pSwitchTab('pdash')"><span class="bnav-icon">📊</span>Dashboard</button>
+ <button class="bnav-item" onclick="pSwitchTab('presas')"><span class="bnav-icon">📋</span>Commandes</button>
+ <button class="bnav-item" onclick="pSwitchTab('pstock')"><span class="bnav-icon">📦</span>Stock</button>
+ <button class="bnav-item active" onclick="pSwitchTab('pprofil')"><span class="bnav-icon">👤</span>Profil</button>
  </nav>
 </div>
 
@@ -797,6 +825,33 @@ async function loadHome() {
    nl.innerHTML = '<div class="empty"><p>Impossible de charger les pharmacies</p></div>';
  }
 
+ // Medicaments CMU (independant)
+ try {
+   var cl = document.getElementById('cmu-list');
+   var cmuRes = await GET('/medications?cmu=1&limit=6');
+   var cmuMeds = (cmuRes.data && cmuRes.data.medications) ? cmuRes.data.medications : [];
+   cl.innerHTML = '';
+   if (cmuMeds.length === 0) {
+     cl.innerHTML = '<div class="empty" style="padding:20px 32px"><p>Médicaments CMU non disponibles</p></div>';
+   } else {
+     var cw = document.createElement('div');
+     cw.style.cssText = 'display:flex;gap:12px;padding:4px 16px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch';
+     cmuMeds.forEach(function(m) {
+       var el = document.createElement('div');
+       el.style.cssText = 'min-width:148px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;flex-shrink:0;border-top:3px solid var(--cmu)';
+       el.innerHTML =
+         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+         '<div style="width:34px;height:34px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green)">' + (m.requiresPrescription?'Rx':'OTC') + '</div>' +
+         '<span style="background:var(--ltcmu);color:var(--cmu);font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px">CMU</span></div>' +
+         '<div style="font-size:13px;font-weight:700;line-height:1.3;margin-bottom:4px">' + m.name + '</div>' +
+         '<div style="font-size:11px;color:var(--gray)">' + (m.category||'') + '</div>';
+       el.onclick = (function(mid){ return function(){ openMed(mid); }; })(m.id);
+       cw.appendChild(el);
+     });
+     cl.appendChild(cw);
+   }
+ } catch(e) { document.getElementById('cmu-list').innerHTML = ''; }
+
  // Medicaments populaires (independant)
  try {
    var popRes = await GET('/medications/popular');
@@ -810,9 +865,11 @@ async function loadHome() {
      meds.slice(0, 8).forEach(function(m) {
        var el = document.createElement('div');
        el.style.cssText = 'min-width:150px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;flex-shrink:0';
-       var tag = m.requiresPrescription
+       var rxTag = m.requiresPrescription
          ? '<span class="badge badge-orange" style="font-size:11px">Ordonnance</span>'
          : '<span class="badge badge-green" style="font-size:11px">Libre</span>';
+       var cmuTag = m.isCmu ? '<span class="badge" style="background:var(--ltcmu);color:var(--cmu);font-size:10px;margin-left:4px">CMU</span>' : '';
+       var tag = rxTag + cmuTag;
        el.innerHTML =
          '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);margin-bottom:10px">' + (m.requiresPrescription ? 'Rx' : 'OTC') + '</div>' +
          '<div style="font-size:13px;font-weight:700;line-height:1.3;margin-bottom:6px">' + m.name + '</div>' +
@@ -862,7 +919,10 @@ async function doSearch(q) {
            '<div style="width:36px;height:36px;border-radius:8px;background:var(--ltgreen);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--green);flex-shrink:0">' + icon + '</div>' +
            '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700">' + m.name + '</div>' +
            '<div style="font-size:12px;color:var(--gray);margin-top:2px">' + (m.dci||'') + (m.form?' · '+m.form:'') + (m.dosage?' · '+m.dosage:'') + '</div></div>' +
-           '<span class="badge ' + (m.requiresPrescription?'badge-orange':'badge-green') + '">' + (m.requiresPrescription?'Ordo':'Libre') + '</span>';
+           '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
+           '<span class="badge ' + (m.requiresPrescription?'badge-orange':'badge-green') + '">' + (m.requiresPrescription?'Ordo':'Libre') + '</span>' +
+           (m.isCmu ? '<span class="badge" style="background:var(--ltcmu);color:var(--cmu);font-size:10px">CMU</span>' : '') +
+           '</div>';
          el.appendChild(div);
        });
      }
@@ -885,7 +945,7 @@ async function doSearch(q) {
        });
      }
    }
- }, 350);
+ }, 200);
 }
 
 // Load categories
@@ -945,7 +1005,8 @@ async function openMed(id) {
  document.getElementById('med-tags').innerHTML =
  `<span class="badge badge-gray">${m.form||'—'}</span>
  <span class="badge badge-gray">${m.dosage||'—'}</span>
- <span class="badge ${m.requiresPrescription?'badge-orange':'badge-green'}">${m.requiresPrescription?'Ordonnance requise':'Sans ordonnance'}</span>`;
+ <span class="badge ${m.requiresPrescription?'badge-orange':'badge-green'}">${m.requiresPrescription?'Ordonnance requise':'Sans ordonnance'}</span>` +
+ (m.isCmu ? '<span class="badge" style="background:var(--ltcmu);color:var(--cmu)">💊 Remboursé CMU</span>' : '');
  document.getElementById('med-desc').textContent = m.description || '';
 
  const pl = document.getElementById('med-pharmacies');
@@ -1066,6 +1127,18 @@ function openReserve(pharma, med, price) {
  if (dBtns[0]) dBtns[0].classList.add('active');
  var dRow = document.getElementById('res-delivery-row');
  if (dRow) dRow.style.display = 'none';
+ // Show/hide ordonnance card
+ var rxCard = document.getElementById('rx-card');
+ if (rxCard) {
+   if (med.requiresPrescription) {
+     rxCard.style.display = 'block';
+     document.getElementById('rx-checkbox').checked = false;
+     document.getElementById('rx-pickup-msg').style.display = 'block';
+     document.getElementById('rx-delivery-msg').style.display = 'none';
+   } else {
+     rxCard.style.display = 'none';
+   }
+ }
  goScreen('screen-reserve');
 }
 
@@ -1081,6 +1154,13 @@ function selectDelivery(btn, type) {
  } else {
    wrap.style.display = 'none';
    if (row) row.style.display = 'none';
+ }
+ // Toggle Rx messages for delivery vs pickup
+ var rxPick = document.getElementById('rx-pickup-msg');
+ var rxDel  = document.getElementById('rx-delivery-msg');
+ if (rxPick && rxDel) {
+   rxPick.style.display = (type === 'PICKUP') ? 'block' : 'none';
+   rxDel.style.display  = (type === 'DELIVERY') ? 'block' : 'none';
  }
  updateResTotal();
 }
@@ -1112,6 +1192,10 @@ async function confirmReservation() {
  btn.textContent = 'Réservation...'; btn.disabled = true;
  try {
  S.resDeliveryAddress = (document.getElementById('delivery-address-input').value || '').trim();
+   if (S.currentMed && S.currentMed.requiresPrescription) {
+     var cb = document.getElementById('rx-checkbox');
+     if (!cb || !cb.checked) { toast('Veuillez confirmer que vous avez une ordonnance valide'); return; }
+   }
    if (S.resDelivery === 'DELIVERY' && !S.resDeliveryAddress) {
      toast('Veuillez saisir votre adresse de livraison');
      btn.textContent = 'Confirmer la réservation'; btn.disabled = false;

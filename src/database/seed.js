@@ -31,22 +31,23 @@ console.log('✅ Users créés');
 
 // ─── MEDICATIONS ─────────────────────────────────────────────────────────────
 const insertMed = db.prepare(`
-  INSERT INTO medications (id, name, dci, form, dosage, category, requires_prescription, description)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO medications (id, name, dci, form, dosage, category, requires_prescription, description, is_cmu)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
+// is_cmu=1 : remboursé par la CMU (Couverture Maladie Universelle — Sénégal)
 const meds = [
-  { id: uuidv4(), name: 'Paracetamol 500mg',   dci: 'Paracétamol',    form: 'Comprimé',              dosage: '500mg',    cat: 'Antalgique',          rx: 0, desc: 'Antalgique et antipyrétique' },
-  { id: uuidv4(), name: 'Amoxicilline 500mg',  dci: 'Amoxicilline',   form: 'Gélule',                dosage: '500mg',    cat: 'Antibiotique',         rx: 1, desc: 'Antibiotique à large spectre' },
-  { id: uuidv4(), name: 'Ibuprofène 400mg',    dci: 'Ibuprofène',     form: 'Comprimé',              dosage: '400mg',    cat: 'Anti-inflammatoire',   rx: 0, desc: 'Anti-inflammatoire non stéroïdien' },
-  { id: uuidv4(), name: 'Coartem 20/120mg',    dci: 'Artéméther/Luméfantrine', form: 'Comprimé',     dosage: '20/120mg', cat: 'Antipaludéen',         rx: 1, desc: 'Traitement antipaludéen de première ligne' },
-  { id: uuidv4(), name: 'Doliprane 1000mg',    dci: 'Paracétamol',    form: 'Comprimé effervescent', dosage: '1000mg',   cat: 'Antalgique',           rx: 0, desc: 'Antalgique adulte' },
-  { id: uuidv4(), name: 'Metformine 500mg',    dci: 'Metformine',     form: 'Comprimé',              dosage: '500mg',    cat: 'Antidiabétique',       rx: 1, desc: 'Traitement du diabète de type 2' },
-  { id: uuidv4(), name: 'Cotrimoxazole 480mg', dci: 'Sulfaméthoxazole/Triméthoprime', form: 'Comprimé', dosage: '480mg', cat: 'Antibiotique',        rx: 1, desc: 'Antibiotique' },
-  { id: uuidv4(), name: 'Oméprazole 20mg',     dci: 'Oméprazole',     form: 'Gélule',                dosage: '20mg',     cat: 'Gastro-entérologie',   rx: 0, desc: 'Inhibiteur de la pompe à protons' },
+  { id: uuidv4(), name: 'Paracetamol 500mg',   dci: 'Paracétamol',    form: 'Comprimé',              dosage: '500mg',    cat: 'Antalgique',          rx: 0, cmu: 1, desc: 'Antalgique et antipyrétique — remboursé CMU' },
+  { id: uuidv4(), name: 'Amoxicilline 500mg',  dci: 'Amoxicilline',   form: 'Gélule',                dosage: '500mg',    cat: 'Antibiotique',         rx: 1, cmu: 1, desc: 'Antibiotique à large spectre — remboursé CMU' },
+  { id: uuidv4(), name: 'Ibuprofène 400mg',    dci: 'Ibuprofène',     form: 'Comprimé',              dosage: '400mg',    cat: 'Anti-inflammatoire',   rx: 0, cmu: 0, desc: 'Anti-inflammatoire non stéroïdien' },
+  { id: uuidv4(), name: 'Coartem 20/120mg',    dci: 'Artéméther/Luméfantrine', form: 'Comprimé',     dosage: '20/120mg', cat: 'Antipaludéen',         rx: 1, cmu: 1, desc: 'Traitement antipaludéen de première ligne — remboursé CMU' },
+  { id: uuidv4(), name: 'Doliprane 1000mg',    dci: 'Paracétamol',    form: 'Comprimé effervescent', dosage: '1000mg',   cat: 'Antalgique',           rx: 0, cmu: 0, desc: 'Antalgique adulte' },
+  { id: uuidv4(), name: 'Metformine 500mg',    dci: 'Metformine',     form: 'Comprimé',              dosage: '500mg',    cat: 'Antidiabétique',       rx: 1, cmu: 1, desc: 'Traitement du diabète de type 2 — remboursé CMU' },
+  { id: uuidv4(), name: 'Cotrimoxazole 480mg', dci: 'Sulfaméthoxazole/Triméthoprime', form: 'Comprimé', dosage: '480mg', cat: 'Antibiotique',        rx: 1, cmu: 1, desc: 'Antibiotique essentiel — remboursé CMU' },
+  { id: uuidv4(), name: 'Oméprazole 20mg',     dci: 'Oméprazole',     form: 'Gélule',                dosage: '20mg',     cat: 'Gastro-entérologie',   rx: 0, cmu: 0, desc: 'Inhibiteur de la pompe à protons' },
 ];
 
-meds.forEach(m => insertMed.run(m.id, m.name, m.dci, m.form, m.dosage, m.cat, m.rx, m.desc));
+meds.forEach(m => insertMed.run(m.id, m.name, m.dci, m.form, m.dosage, m.cat, m.rx, m.desc, m.cmu));
 console.log(`✅ ${meds.length} médicaments créés`);
 
 // ─── PHARMACIES ──────────────────────────────────────────────────────────────

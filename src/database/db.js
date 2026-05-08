@@ -126,5 +126,15 @@ db.exec(`
 try { db.exec("ALTER TABLE reservations ADD COLUMN delivery_type TEXT NOT NULL DEFAULT 'PICKUP'"); } catch(_) {}
 try { db.exec("ALTER TABLE reservations ADD COLUMN delivery_address TEXT");                       } catch(_) {}
 try { db.exec("ALTER TABLE reservations ADD COLUMN delivery_fee REAL NOT NULL DEFAULT 0");        } catch(_) {}
+try { db.exec("ALTER TABLE medications ADD COLUMN is_cmu INTEGER NOT NULL DEFAULT 0");            } catch(_) {}
+
+// Mark CMU medications (Couverture Maladie Universelle — Sénégal)
+try {
+  const cmuNames = ['Paracetamol', 'Amoxicilline', 'Coartem', 'Metformine', 'Cotrimoxazole'];
+  for (const name of cmuNames) {
+    db.prepare("UPDATE medications SET is_cmu=1 WHERE LOWER(name) LIKE ? AND is_cmu=0")
+      .run(`%${name.toLowerCase()}%`);
+  }
+} catch(_) {}
 
 module.exports = db;

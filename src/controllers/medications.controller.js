@@ -17,6 +17,9 @@ function search(req, res, next) {
       sql += ' AND LOWER(category) = ?';
       args.push(category.toLowerCase());
     }
+    if (req.query.cmu === '1') {
+      sql += ' AND is_cmu = 1';
+    }
 
     const total = db.prepare(sql.replace('SELECT *', 'SELECT COUNT(*) as cnt')).get(...args).cnt;
 
@@ -65,6 +68,14 @@ function categories(req, res, next) {
   } catch (err) { next(err); }
 }
 
+// ─── GET /medications/cmu — CMU-reimbursed medications ───────────────────────
+function cmuList(req, res, next) {
+  try {
+    const meds = db.prepare('SELECT * FROM medications WHERE is_active=1 AND is_cmu=1 ORDER BY name').all();
+    res.json({ success: true, data: meds.map(medToDto) });
+  } catch (err) { next(err); }
+}
+
 // ─── GET /medications/:id ─────────────────────────────────────────────────────
 function getById(req, res, next) {
   try {
@@ -107,10 +118,11 @@ function medToDto(m) {
     dosage:               m.dosage,
     category:             m.category,
     requiresPrescription: !!m.requires_prescription,
+    isCmu:                !!m.is_cmu,
     description:          m.description,
     isActive:             !!m.is_active,
     createdAt:            m.created_at,
   };
 }
 
-module.exports = { search, popular, categories, getById, create };
+module.exports = { search, popular, categories, cmuList, getById, create };

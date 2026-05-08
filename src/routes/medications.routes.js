@@ -11,6 +11,9 @@ router.get('/popular', ctrl.popular);
 // GET /api/v1/medications/categories
 router.get('/categories', ctrl.categories);
 
+// GET /api/v1/medications/cmu — médicaments remboursés CMU
+router.get('/cmu', ctrl.cmuList);
+
 // GET /api/v1/medications/:id
 router.get('/:id', ctrl.getById);
 
