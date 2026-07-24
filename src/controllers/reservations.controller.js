@@ -276,6 +276,13 @@ async function complete(req, res, next) {
 
     const now = new Date().toISOString();
     await pool.query('UPDATE reservations SET status=$1, updated_at=$2 WHERE id=$3', ['COMPLETED', now, resa.id]);
+
+    // Paiement au retrait : encaisser le paiement CASH en attente lors de la remise
+    await pool.query(
+      "UPDATE payments SET status='COMPLETED', completed_at=$1 WHERE reservation_id=$2 AND method='CASH' AND status='PENDING'",
+      [now, resa.id]
+    );
+
     res.json({ success: true, message: 'Réservation complétée', data: { id: resa.id, status: 'COMPLETED' } });
   } catch (err) { next(err); }
 }

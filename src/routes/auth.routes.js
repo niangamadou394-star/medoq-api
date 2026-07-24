@@ -12,6 +12,22 @@ function validate(req, res, next) {
   next();
 }
 
+// Exige au moins un des deux champs (phone OU email) et valide leur format si présents.
+function phoneOrEmailRequired(req, res, next) {
+  const phone = (req.body?.phone || '').trim();
+  const email = (req.body?.email || '').trim();
+  if (!phone && !email) {
+    return res.status(422).json({ success: false, message: 'Téléphone ou email requis' });
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(422).json({ success: false, message: 'Email invalide' });
+  }
+  // Normalisation légère du phone (garde le + international)
+  if (phone) req.body.phone = phone.replace(/[\s\-\.]/g, '');
+  if (email) req.body.email = email.toLowerCase();
+  next();
+}
+
 // POST /api/v1/auth/send-otp
 router.post('/send-otp',
   body('phone').notEmpty().withMessage('Téléphone requis'),
@@ -24,14 +40,16 @@ router.post('/register',
   body('phone').notEmpty().withMessage('Téléphone requis'),
   body('name').notEmpty().withMessage('Nom requis'),
   body('password').isLength({ min: 6 }).withMessage('Mot de passe min 6 caractères'),
+  body('email').optional({ checkFalsy: true })
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).withMessage('Email invalide'),
   validate,
   ctrl.register
 );
 
 // POST /api/v1/auth/login
 router.post('/login',
-  body('phone').notEmpty().withMessage('Téléphone requis'),
   body('password').notEmpty().withMessage('Mot de passe requis'),
+  phoneOrEmailRequired,
   validate,
   ctrl.login
 );

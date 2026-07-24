@@ -30,23 +30,25 @@ async function initiate(req, res, next) {
     const now        = new Date().toISOString();
 
     if (method === 'CASH') {
+      // Paiement au retrait : le paiement reste PENDING jusqu'à la remise en officine.
+      // C'est le pharmacien qui clôture (complete) la réservation après encaissement.
       if (existing) {
         await pool.query(
-          "UPDATE payments SET status='COMPLETED', completed_at=$1 WHERE id=$2",
-          [now, existing.id]
+          "UPDATE payments SET method='CASH', status='PENDING', wave_ref=NULL, orange_ref=NULL, checkout_url=NULL WHERE id=$1",
+          [existing.id]
         );
       } else {
         await pool.query(
-          `INSERT INTO payments (id, reservation_id, method, amount, commission, commission_rate, status, completed_at)
-           VALUES ($1,$2,$3,$4,$5,$6,'COMPLETED',$7)`,
-          [id, reservationId, 'CASH', amount, commission, COMMISSION_RATE, now]
+          `INSERT INTO payments (id, reservation_id, method, amount, commission, commission_rate, status)
+           VALUES ($1,$2,$3,$4,$5,$6,'PENDING')`,
+          [id, reservationId, 'CASH', amount, commission, COMMISSION_RATE]
         );
       }
-      await pool.query(
-        'UPDATE reservations SET status=$1, updated_at=$2 WHERE id=$3',
-        ['COMPLETED', now, reservationId]
-      );
-      return res.json({ success: true, message: 'Paiement cash enregistré', data: { method: 'CASH', status: 'COMPLETED', amount } });
+      return res.json({
+        success: true,
+        message: 'Paiement au retrait enregistré. Le règlement se fera en pharmacie.',
+        data: { paymentId: existing?.id || id, method: 'CASH', status: 'PENDING', amount }
+      });
     }
 
     // Mobile money

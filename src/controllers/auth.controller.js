@@ -129,10 +129,18 @@ async function register(req, res, next) {
 // ─── POST /auth/login ─────────────────────────────────────────────────────────
 async function login(req, res, next) {
   try {
-    const { phone, password } = req.body;
+    const { phone, email, password } = req.body;
 
-    const { rows } = await pool.query('SELECT * FROM users WHERE phone=$1', [phone]);
-    const user = rows[0];
+    // Recherche par phone OU email selon ce qui a ete fourni
+    let user = null;
+    if (phone) {
+      const { rows } = await pool.query('SELECT * FROM users WHERE phone=$1', [phone]);
+      user = rows[0];
+    }
+    if (!user && email) {
+      const { rows } = await pool.query('SELECT * FROM users WHERE lower(email)=lower($1)', [email]);
+      user = rows[0];
+    }
     if (!user) {
       return res.status(401).json({ success: false, message: 'Identifiants incorrects' });
     }
