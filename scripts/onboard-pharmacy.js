@@ -33,7 +33,7 @@
  */
 require('dotenv').config();
 const fs = require('fs');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const pool = require('../src/database/db');
 
