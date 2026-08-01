@@ -86,4 +86,17 @@ router.post('/reset-password',
   ctrl.resetPassword
 );
 
+// POST /api/v1/auth/register-pharmacy
+router.post('/register-pharmacy',
+  body('pharmacyName').notEmpty().withMessage('Nom de la pharmacie requis'),
+  body('address').notEmpty().withMessage('Adresse requise'),
+  body('pharmacyPhone').notEmpty().withMessage('Téléphone pharmacie requis'),
+  body('licenseNumber').notEmpty().withMessage('Numéro de licence requis'),
+  body('staffName').notEmpty().withMessage('Nom du responsable requis'),
+  body('staffPhone').notEmpty().withMessage('Téléphone du responsable requis'),
+  body('password').isLength({ min: 6 }).withMessage('Mot de passe min 6 caractères'),
+  validate,
+  ctrl.registerPharmacy
+);
+
 module.exports = router;

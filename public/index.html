@@ -162,7 +162,24 @@ input.no-icon,select.no-icon{padding-left:14px}
 <div class="screen" id="screen-login">
  <div style="padding:40px 0 32px;min-height:100%">
  <div class="login-logo">
- <div class="big">Med<span>oq</span></div>
+ <svg style="width:200px;display:block;margin:0 auto 4px" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+   <linearGradient id="lg-i" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1D9E75"/><stop offset="100%" stop-color="#185FA5"/></linearGradient>
+   <linearGradient id="lg-c" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#E1F5EE" stop-opacity=".9"/></linearGradient>
+   <linearGradient id="lg-w" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#185FA5"/><stop offset="100%" stop-color="#1D9E75"/></linearGradient>
+  </defs>
+  <circle cx="200" cy="160" r="88" fill="url(#lg-i)"/>
+  <rect x="181" y="127" width="38" height="66" rx="6" fill="url(#lg-c)"/>
+  <rect x="167" y="141" width="66" height="38" rx="6" fill="url(#lg-c)"/>
+  <path d="M219 155 Q248 132 260 155" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+  <path d="M219 170 Q248 192 260 170" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+  <circle cx="219" cy="162" r="5" fill="white" opacity=".8"/>
+  <circle cx="261" cy="162" r="5" fill="white" opacity=".8"/>
+  <text x="312" y="148" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="#0C447C" letter-spacing="-1">Medo</text>
+  <text x="506" y="148" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="url(#lg-w)" letter-spacing="-1">q</text>
+  <text x="313" y="186" font-family="Inter,system-ui,sans-serif" font-size="17" font-weight="400" fill="#1D9E75" letter-spacing="3.5">SANTÉ CONNECTÉE</text>
+  <line x1="313" y1="197" x2="616" y2="197" stroke="#1D9E75" stroke-width="1" opacity=".35"/>
+ </svg>
  <div class="sub">Votre médicament. Réservé. Prêt.</div>
  </div>
  <div class="login-role">
@@ -170,14 +187,14 @@ input.no-icon,select.no-icon{padding-left:14px}
  <button class="role-btn" id="role-pharma" onclick="setRole('pharmacie')">Pharmacie</button>
  </div>
  <div class="input-wrap">
- <input type="tel" id="login-phone" placeholder="Numéro de téléphone" value="+221770000001">
+ <input type="tel" id="login-phone" placeholder="Numéro de téléphone (+221...)" autocomplete="tel">
  </div>
  <div class="input-wrap">
- <input type="password" id="login-pass" placeholder="Mot de passe" value="password123">
+ <input type="password" id="login-pass" placeholder="Mot de passe" autocomplete="current-password">
  </div>
  <div class="btn-wrap"><button class="btn btn-primary" onclick="doLogin()">Se connecter</button></div>
- <p style="text-align:center;font-size:13px;color:var(--gray);padding:4px 16px">
- <span style="color:var(--green);font-weight:600;cursor:pointer" onclick="showRegister()">Créer un compte</span>
+ <p style="text-align:center;font-size:13px;color:var(--gray);padding:4px 16px" id="login-create-link">
+ <span id="login-create-text" style="color:var(--green);font-weight:600;cursor:pointer" onclick="showRegisterAuto()">Créer un compte</span>
  </p>
  <p style="text-align:center;font-size:13px;color:var(--gray);padding:4px 16px 16px">
  <span style="color:var(--gray);cursor:pointer" onclick="showForgot()">Mot de passe oublié ?</span>
@@ -224,6 +241,55 @@ input.no-icon,select.no-icon{padding-left:14px}
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- REGISTER PHARMACY -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="screen hidden" id="screen-register-pharmacy">
+ <div class="topbar">
+ <button class="topbar-btn" onclick="goScreen('screen-login')">&#8592; Retour</button>
+ <div class="topbar-title">Rejoindre Medoq</div>
+ <div style="width:80px"></div>
+ </div>
+ <div class="scroll" style="padding:0 0 40px">
+ <div style="padding:16px 16px 4px;background:linear-gradient(135deg,#0066FF,#00D4AA);margin-bottom:16px">
+  <p style="color:white;font-size:14px;font-weight:600;text-align:center;padding:8px 0">Votre pharmacie sur Medoq en 24h</p>
+ </div>
+ <div class="section-label">Informations de la pharmacie</div>
+ <div class="input-wrap">
+  <input type="text" id="ph-name" placeholder="Nom de la pharmacie *" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="input-wrap">
+  <input type="text" id="ph-address" placeholder="Adresse complète *" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="input-wrap">
+  <input type="tel" id="ph-phone" placeholder="Téléphone de la pharmacie *" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="input-wrap">
+  <input type="text" id="ph-license" placeholder="N° de licence (ex: PH-DK-011) *" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="input-wrap">
+  <input type="text" id="ph-hours" placeholder="Horaires (ex: 08h - 20h)" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="section-label">Compte du responsable</div>
+ <div class="input-wrap">
+  <input type="text" id="ph-staff-name" placeholder="Nom du responsable *" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="input-wrap">
+  <input type="tel" id="ph-staff-phone" placeholder="Téléphone du responsable (+221...) *" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="input-wrap">
+  <input type="email" id="ph-staff-email" placeholder="Email (facultatif)" class="no-icon" enterkeyhint="next">
+ </div>
+ <div class="input-wrap">
+  <input type="password" id="ph-staff-pass" placeholder="Mot de passe (6 caractères min) *" class="no-icon" enterkeyhint="done">
+ </div>
+ <div class="btn-wrap">
+  <button class="btn btn-primary" id="ph-reg-btn" onclick="doRegisterPharmacy()">Envoyer ma demande</button>
+ </div>
+ <p style="text-align:center;font-size:12px;color:var(--gray);padding:0 16px">L'équipe Medoq validera votre inscription sous 24-48h et vous contactera directement.</p>
+ </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
 <!-- FORGOT PASSWORD -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-forgot">
@@ -262,7 +328,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-home">
  <div class="topbar topbar-home">
- <div class="topbar-logo" style="color:#E8EDF5;font-size:22px;font-weight:800;letter-spacing:-.3px"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div>
+ <div class="topbar-logo"><svg style="height:30px;width:auto" viewBox="100 60 520 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tl-d" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00D4AA"/><stop offset="100%" stop-color="#0066FF"/></linearGradient><linearGradient id="ti-d" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1D9E75"/><stop offset="100%" stop-color="#185FA5"/></linearGradient><linearGradient id="tc-d" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#E1F5EE" stop-opacity=".9"/></linearGradient></defs><circle cx="155" cy="140" r="60" fill="url(#ti-d)"/><rect x="142" y="116" width="26" height="48" rx="5" fill="url(#tc-d)"/><rect x="127" y="127" width="56" height="26" rx="5" fill="url(#tc-d)"/><text x="232" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="white" letter-spacing="-1">Medo</text><text x="430" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="url(#tl-d)" letter-spacing="-1">q</text></svg></div>
  <div style="display:flex;gap:8px">
  <button class="topbar-btn" style="background:rgba(255,255,255,.12);color:#E8EDF5" onclick="goScreen('screen-notifs')">🔔</button>
  <button class="topbar-btn" style="background:rgba(255,255,255,.12);color:#E8EDF5" onclick="switchTab('profile')">👤</button>
@@ -477,7 +543,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-reservations">
  <div class="topbar">
- <div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div>
+ <div class="topbar-logo"><svg style="height:30px;width:auto" viewBox="100 60 520 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tl-l" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#185FA5"/><stop offset="100%" stop-color="#1D9E75"/></linearGradient><linearGradient id="ti-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1D9E75"/><stop offset="100%" stop-color="#185FA5"/></linearGradient><linearGradient id="tc-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#E1F5EE" stop-opacity=".9"/></linearGradient></defs><circle cx="155" cy="140" r="60" fill="url(#ti-l)"/><rect x="142" y="116" width="26" height="48" rx="5" fill="url(#tc-l)"/><rect x="127" y="127" width="56" height="26" rx="5" fill="url(#tc-l)"/><text x="232" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="#0C447C" letter-spacing="-1">Medo</text><text x="430" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="url(#tl-l)" letter-spacing="-1">q</text></svg></div>
  </div>
  <div class="tabs">
  <button class="tab active" onclick="filterResas(this,'')">Toutes</button>
@@ -499,7 +565,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- PATIENT — PROFILE -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-profile">
- <div class="topbar"><div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div></div>
+ <div class="topbar"><div class="topbar-logo"><svg style="height:30px;width:auto" viewBox="100 60 520 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tl-l" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#185FA5"/><stop offset="100%" stop-color="#1D9E75"/></linearGradient><linearGradient id="ti-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1D9E75"/><stop offset="100%" stop-color="#185FA5"/></linearGradient><linearGradient id="tc-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#E1F5EE" stop-opacity=".9"/></linearGradient></defs><circle cx="155" cy="140" r="60" fill="url(#ti-l)"/><rect x="142" y="116" width="26" height="48" rx="5" fill="url(#tc-l)"/><rect x="127" y="127" width="56" height="26" rx="5" fill="url(#tc-l)"/><text x="232" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="#0C447C" letter-spacing="-1">Medo</text><text x="430" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="url(#tl-l)" letter-spacing="-1">q</text></svg></div></div>
  <div class="scroll">
  <div style="padding:24px 16px 16px;display:flex;align-items:center;gap:16px">
  <div class="avatar" style="width:64px;height:64px;font-size:24px" id="profile-avatar">A</div>
@@ -518,8 +584,8 @@ input.no-icon,select.no-icon{padding-left:14px}
  </div>
  <div class="section-label">Support</div>
  <div class="card">
- <div class="card-row" onclick="toast('Bientôt disponible')"><span style="margin-right:12px"></span> Aide <span style="margin-left:auto;color:var(--gray)">›</span></div>
- <div class="card-row" onclick="toast('Bientôt disponible')"><span style="margin-right:12px">Tel</span> Nous contacter <span style="margin-left:auto;color:var(--gray)">›</span></div>
+ <div class="card-row" onclick="window.open('mailto:niangamadou394@gmail.com?subject=Question%20Medoq','_blank')"><span style="margin-right:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span> Aide &amp; FAQ <span style="margin-left:auto;color:var(--gray)">›</span></div>
+ <div class="card-row" onclick="window.open('mailto:niangamadou394@gmail.com?subject=Contact%20Medoq','_blank')"><span style="margin-right:12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span> Nous contacter <span style="margin-left:auto;font-size:11px;color:var(--teal)">niangamadou394@gmail.com</span></div>
  </div>
  <div class="btn-wrap" style="padding-top:8px"><button class="btn btn-outline" onclick="doLogout()">Se déconnecter</button></div>
  </div>
@@ -536,7 +602,7 @@ input.no-icon,select.no-icon{padding-left:14px}
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <div class="screen hidden" id="screen-pdash">
  <div class="topbar">
- <div class="topbar-logo"><img src="icon-192.png" style="width:26px;height:26px;border-radius:6px;margin-right:7px;vertical-align:middle">Med<span style="background:linear-gradient(90deg,#00D4AA,#0066FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">oq</span></div>
+ <div class="topbar-logo"><svg style="height:30px;width:auto" viewBox="100 60 520 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="tl-l" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#185FA5"/><stop offset="100%" stop-color="#1D9E75"/></linearGradient><linearGradient id="ti-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1D9E75"/><stop offset="100%" stop-color="#185FA5"/></linearGradient><linearGradient id="tc-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#E1F5EE" stop-opacity=".9"/></linearGradient></defs><circle cx="155" cy="140" r="60" fill="url(#ti-l)"/><rect x="142" y="116" width="26" height="48" rx="5" fill="url(#tc-l)"/><rect x="127" y="127" width="56" height="26" rx="5" fill="url(#tc-l)"/><text x="232" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="#0C447C" letter-spacing="-1">Medo</text><text x="430" y="162" font-family="Inter,system-ui,sans-serif" font-size="72" font-weight="800" fill="url(#tl-l)" letter-spacing="-1">q</text></svg></div>
  <button class="topbar-btn" onclick="doLogout()">Quitter</button>
  </div>
  <div class="scroll" id="pdash-scroll">
@@ -854,6 +920,40 @@ async function doRegister() {
  }
 }
 
+// ─── Register Pharmacy ────────────────────────────────────────────────────
+async function doRegisterPharmacy() {
+ var pharmacyName  = document.getElementById('ph-name').value.trim();
+ var address       = document.getElementById('ph-address').value.trim();
+ var pharmacyPhone = document.getElementById('ph-phone').value.trim();
+ var licenseNumber = document.getElementById('ph-license').value.trim();
+ var openingHours  = document.getElementById('ph-hours').value.trim();
+ var staffName     = document.getElementById('ph-staff-name').value.trim();
+ var staffPhone    = document.getElementById('ph-staff-phone').value.trim();
+ var staffEmail    = document.getElementById('ph-staff-email').value.trim();
+ var password      = document.getElementById('ph-staff-pass').value;
+ if (!pharmacyName || !address || !pharmacyPhone || !licenseNumber || !staffName || !staffPhone || !password) {
+   toast('Remplissez tous les champs obligatoires (*)'); return;
+ }
+ if (password.length < 6) { toast('Mot de passe min 6 caractères'); return; }
+ var btn = document.getElementById('ph-reg-btn');
+ btn.textContent = 'Envoi en cours...'; btn.disabled = true;
+ try {
+   await POST('/auth/register-pharmacy', {
+     pharmacyName, address, pharmacyPhone, licenseNumber, openingHours: openingHours || '08h - 20h',
+     staffName, staffPhone, staffEmail: staffEmail || undefined, password
+   });
+   // Succès — afficher un message et revenir à l'écran de connexion
+   goScreen('screen-login');
+   setTimeout(function() {
+     alert('Demande envoyée !\n\nL\'équipe Medoq vous contactera sous 24-48h pour valider votre inscription.\n\nVous pourrez ensuite vous connecter avec votre numéro et mot de passe.');
+   }, 300);
+ } catch (e) {
+   toast(e.message || 'Erreur lors de l\'envoi');
+ } finally {
+   btn.textContent = 'Envoyer ma demande'; btn.disabled = false;
+ }
+}
+
 // ─── Forgot password ──────────────────────────────────────────────────────
 function showForgot() {
  document.getElementById('screen-login').classList.add('hidden');
@@ -894,7 +994,22 @@ function setRole(r) {
  loginRole = r;
  document.getElementById('role-patient').classList.toggle('active', r === 'patient');
  document.getElementById('role-pharma').classList.toggle('active', r === 'pharmacie');
- document.getElementById('login-phone').value = r === 'patient' ? '+221770000001' : '+221770000002';
+ document.getElementById('login-phone').value = '';
+ document.getElementById('login-pass').value = '';
+ var txt = document.getElementById('login-create-text');
+ if (r === 'pharmacie') {
+   txt.textContent = 'Inscrire ma pharmacie';
+ } else {
+   txt.textContent = 'Créer un compte';
+ }
+}
+
+function showRegisterAuto() {
+ if (loginRole === 'pharmacie') {
+   goScreen('screen-register-pharmacy');
+ } else {
+   showRegister();
+ }
 }
 
 async function doLogin() {

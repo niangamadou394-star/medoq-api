@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Medoq — Trouvez votre médicament dans les pharmacies de Dakar en temps réel. Réservez en ligne, récupérez en pharmacie.">
+<meta name="theme-color" content="#0066FF">
+<title>Medoq — Santé Connectée</title>
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #0066FF;
+  --teal: #00D4AA;
+  --dk:   #0A0E1A;
+  --dk2:  #0D1833;
+  --white:#FFFFFF;
+  --gray: #6B7280;
+  --lgray:#F0F4FB;
+  --font: 'Inter', system-ui, sans-serif;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--white); color: var(--dk); overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+
+/* ── NAV ─────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 72px;
+  background: rgba(10,14,26,.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.nav-logo { display: flex; align-items: center; gap: 12px; }
+.nav-logo svg { width: 120px; }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); transition: color .2s; }
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: var(--white); font-size: 14px; font-weight: 700;
+  padding: 10px 22px; border-radius: 100px;
+  transition: opacity .2s, transform .2s;
+}
+.nav-cta:hover { opacity: .9; transform: translateY(-1px); }
+.burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+.burger span { display: block; width: 22px; height: 2px; background: rgba(255,255,255,.7); border-radius: 2px; }
+
+/* ── HERO ────────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--dk) 0%, var(--dk2) 60%, #0A2040 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 120px 24px 80px; text-align: center; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 30%, rgba(0,102,255,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(0,212,170,.12); border: 1px solid rgba(0,212,170,.3);
+  color: var(--teal); font-size: 13px; font-weight: 600;
+  padding: 6px 16px; border-radius: 100px; margin-bottom: 32px;
+}
+.hero-badge span { width: 8px; height: 8px; background: var(--teal); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+.hero-logo {
+  width: min(460px, 90vw); margin: 0 auto 28px;
+  filter: drop-shadow(0 8px 32px rgba(0,102,255,.3));
+}
+.hero-title {
+  font-size: clamp(22px, 5vw, 48px); font-weight: 800; line-height: 1.15;
+  color: var(--white); max-width: 700px; margin: 0 auto 20px;
+}
+.hero-title .grad {
+  background: linear-gradient(90deg, var(--teal), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-sub {
+  font-size: clamp(15px, 2.5vw, 18px); color: rgba(255,255,255,.6);
+  max-width: 520px; margin: 0 auto 40px; line-height: 1.7;
+}
+.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.btn-main {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: var(--white); font-size: 16px; font-weight: 700;
+  padding: 16px 32px; border-radius: 100px;
+  box-shadow: 0 8px 32px rgba(0,102,255,.4);
+  transition: transform .2s, box-shadow .2s;
+}
+.btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,102,255,.5); }
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 10px;
+  border: 1.5px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.85); font-size: 15px; font-weight: 600;
+  padding: 15px 28px; border-radius: 100px;
+  transition: border-color .2s, background .2s;
+}
+.btn-outline:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.06); }
+
+/* ── MOCKUP ──────────────────────────────────────────── */
+.mockup-section {
+  background: var(--lgray); padding: 80px 24px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.section-label-small {
+  font-size: 13px; font-weight: 700; color: var(--blue);
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(24px, 4vw, 38px); font-weight: 800;
+  color: var(--dk); text-align: center; max-width: 520px;
+  margin: 0 auto 16px; line-height: 1.2;
+}
+.section-sub {
+  font-size: 16px; color: var(--gray); text-align: center;
+  max-width: 480px; margin: 0 auto 48px; line-height: 1.7;
+}
+.phone-frame {
+  width: 320px; height: 620px;
+  border-radius: 40px;
+  background: var(--dk);
+  box-shadow: 0 24px 80px rgba(0,0,0,.25), 0 0 0 8px rgba(255,255,255,.06);
+  overflow: hidden; position: relative;
+}
+.phone-frame iframe {
+  width: 100%; height: 100%; border: none; border-radius: 32px;
+}
+.phone-notch {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: 90px; height: 18px; background: var(--dk);
+  border-radius: 0 0 16px 16px; z-index: 10;
+}
+.open-app-btn {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 28px;
+  background: var(--dk); color: var(--white); font-size: 15px; font-weight: 700;
+  padding: 14px 28px; border-radius: 100px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+  transition: transform .2s;
+}
+.open-app-btn:hover { transform: translateY(-2px); }
+
+/* ── HOW IT WORKS ────────────────────────────────────── */
+.steps-section { padding: 80px 24px; background: var(--white); }
+.steps-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 32px; max-width: 900px; margin: 0 auto;
+}
+.step-card {
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 32px 24px; border-radius: 20px;
+  border: 1px solid #E5E7EB; background: var(--white);
+  transition: box-shadow .2s, transform .2s;
+}
+.step-card:hover { box-shadow: 0 8px 32px rgba(0,102,255,.1); transform: translateY(-3px); }
+.step-num {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--blue), var(--teal));
+  color: var(--white); font-weight: 800; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+}
+.step-card h3 { font-size: 17px; font-weight: 700; color: var(--dk); margin-bottom: 8px; }
+.step-card p { font-size: 14px; color: var(--gray); line-height: 1.6; }
+
+/* ── PHARMACY CTA ────────────────────────────────────── */
+.pharma-section {
+  background: linear-gradient(135deg, var(--dk) 0%, var(--dk2) 100%);
+  padding: 80px 24px; text-align: center; position: relative; overflow: hidden;
+}
+.pharma-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 80% 50%, rgba(0,212,170,.12) 0%, transparent 70%);
+}
+.pharma-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+.pharma-section h2 { font-size: clamp(24px,4vw,36px); font-weight: 800; color: var(--white); margin-bottom: 16px; }
+.pharma-section p { font-size: 16px; color: rgba(255,255,255,.6); margin-bottom: 36px; line-height: 1.7; }
+.pharma-benefits {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 36px;
+}
+.benefit-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.85); font-size: 13px; font-weight: 600;
+  padding: 8px 16px; border-radius: 100px;
+}
+.benefit-pill svg { width: 14px; height: 14px; stroke: var(--teal); flex-shrink: 0; }
+
+/* ── FOOTER ──────────────────────────────────────────── */
+footer {
+  background: var(--dk); color: rgba(255,255,255,.5);
+  padding: 40px 40px; display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: gap; gap: 16px;
+}
+footer .foot-logo { font-size: 20px; font-weight: 800; color: var(--white); }
+footer .foot-logo span { color: var(--teal); }
+footer a { color: rgba(255,255,255,.5); font-size: 14px; transition: color .2s; }
+footer a:hover { color: var(--white); }
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .burger { display: flex; }
+  footer { flex-direction: column; align-items: flex-start; }
+  .phone-frame { width: 280px; height: 540px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <!-- Logo officiel Medoq -->
+    <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="iG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#1D9E75"/>
+          <stop offset="100%" stop-color="#185FA5"/>
+        </linearGradient>
+        <linearGradient id="cG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#fff" stop-opacity=".95"/>
+          <stop offset="100%" stop-color="#E1F5EE" stop-opacity=".9"/>
+        </linearGradient>
+        <linearGradient id="lG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#185FA5"/>
+          <stop offset="100%" stop-color="#1D9E75"/>
+        </linearGradient>
+      </defs>
+      <circle cx="200" cy="160" r="88" fill="url(#iG)"/>
+      <rect x="181" y="127" width="38" height="66" rx="6" fill="url(#cG)"/>
+      <rect x="167" y="141" width="66" height="38" rx="6" fill="url(#cG)"/>
+      <path d="M219 155 Q248 132 260 155" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+      <path d="M219 170 Q248 192 260 170" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+      <circle cx="219" cy="162" r="5" fill="white" opacity=".8"/>
+      <circle cx="261" cy="162" r="5" fill="white" opacity=".8"/>
+      <text x="312" y="148" font-family="Inter,sans-serif" font-size="72" font-weight="700" fill="white" letter-spacing="-1">Medo</text>
+      <text x="506" y="148" font-family="Inter,sans-serif" font-size="72" font-weight="700" fill="url(#lG)" letter-spacing="-1">q</text>
+      <text x="313" y="186" font-family="Inter,sans-serif" font-size="17" font-weight="400" fill="#1D9E75" letter-spacing="3.5">SANTÉ CONNECTÉE</text>
+      <line x1="313" y1="197" x2="616" y2="197" stroke="#1D9E75" stroke-width="1" opacity=".35"/>
+    </svg>
+  </div>
+  <div class="nav-links">
+    <a href="#comment-ca-marche">Comment ça marche</a>
+    <a href="#pharmacies">Pharmacies</a>
+    <a href="mailto:niangamadou394@gmail.com">Contact</a>
+  </div>
+  <a href="https://medoq-api.onrender.com" class="nav-cta" target="_blank">Accéder à l'app</a>
+  <div class="burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <!-- Logo officiel grand format -->
+  <svg class="hero-logo" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="iG2" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1D9E75"/>
+        <stop offset="100%" stop-color="#185FA5"/>
+      </linearGradient>
+      <linearGradient id="cG2" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#fff" stop-opacity=".95"/>
+        <stop offset="100%" stop-color="#E1F5EE" stop-opacity=".9"/>
+      </linearGradient>
+      <linearGradient id="lG2" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#185FA5"/>
+        <stop offset="100%" stop-color="#1D9E75"/>
+      </linearGradient>
+    </defs>
+    <circle cx="200" cy="160" r="88" fill="url(#iG2)"/>
+    <rect x="181" y="127" width="38" height="66" rx="6" fill="url(#cG2)"/>
+    <rect x="167" y="141" width="66" height="38" rx="6" fill="url(#cG2)"/>
+    <path d="M219 155 Q248 132 260 155" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+    <path d="M219 170 Q248 192 260 170" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+    <circle cx="219" cy="162" r="5" fill="white" opacity=".8"/>
+    <circle cx="261" cy="162" r="5" fill="white" opacity=".8"/>
+    <text x="312" y="148" font-family="Inter,sans-serif" font-size="72" font-weight="700" fill="white" letter-spacing="-1">Medo</text>
+    <text x="506" y="148" font-family="Inter,sans-serif" font-size="72" font-weight="700" fill="url(#lG2)" letter-spacing="-1">q</text>
+    <text x="313" y="186" font-family="Inter,sans-serif" font-size="17" font-weight="400" fill="#1D9E75" letter-spacing="3.5">SANTÉ CONNECTÉE</text>
+    <line x1="313" y1="197" x2="616" y2="197" stroke="#1D9E75" stroke-width="1" opacity=".35"/>
+  </svg>
+
+  <div class="hero-badge">
+    <span></span>Prototype en ligne · Dakar, Sénégal
+  </div>
+  <h1 class="hero-title">
+    Trouvez votre médicament<br>
+    <span class="grad">avant de vous déplacer</span>
+  </h1>
+  <p class="hero-sub">
+    Medoq connecte les patients aux pharmacies de Dakar en temps réel.
+    Vérifiez la disponibilité, réservez en ligne, et récupérez votre médicament en pharmacie.
+  </p>
+  <div class="hero-btns">
+    <a href="https://medoq-api.onrender.com" class="btn-main" target="_blank">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Essayer le prototype
+    </a>
+    <a href="#pharmacies" class="btn-outline">
+      Rejoindre en tant que pharmacie
+    </a>
+  </div>
+</section>
+
+<!-- MOCKUP / APP DEMO -->
+<section class="mockup-section" id="prototype">
+  <div class="section-label-small">Le prototype</div>
+  <h2 class="section-title">L'application en action</h2>
+  <p class="section-sub">
+    Testez le prototype directement ici — interface patient complète, recherche de médicaments, réservation en ligne.
+  </p>
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <iframe
+      src="https://medoq-api.onrender.com"
+      title="Prototype Medoq"
+      loading="lazy"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups">
+    </iframe>
+  </div>
+  <a href="https://medoq-api.onrender.com" class="open-app-btn" target="_blank">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    Ouvrir en plein écran
+  </a>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="steps-section" id="comment-ca-marche">
+  <div style="text-align:center;margin-bottom:48px">
+    <div class="section-label-small">Comment ça marche</div>
+    <h2 class="section-title" style="margin-bottom:0">Simple. Rapide. Fiable.</h2>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>Cherchez votre médicament</h3>
+      <p>Tapez le nom du médicament. Medoq affiche en temps réel toutes les pharmacies qui l'ont en stock autour de vous.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>Choisissez votre pharmacie</h3>
+      <p>Comparez les prix, les distances et les horaires. Sélectionnez la pharmacie qui vous convient.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>Réservez en un clic</h3>
+      <p>Votre médicament est mis de côté. Plus besoin de vous déplacer dans cinq pharmacies pour rien.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <h3>Récupérez et payez</h3>
+      <p>Rendez-vous directement au comptoir. Votre médicament vous attend. Payez sur place.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PHARMACY CTA -->
+<section class="pharma-section" id="pharmacies">
+  <div class="pharma-inner">
+    <div class="section-label-small" style="color:var(--teal)">Pour les pharmacies</div>
+    <h2>Rejoignez le réseau Medoq</h2>
+    <p>
+      Connectez votre pharmacie à Medoq et recevez des réservations en ligne dès aujourd'hui.
+      Gérez votre stock en temps réel, réduisez les ruptures et attirez de nouveaux clients.
+    </p>
+    <div class="pharma-benefits">
+      <div class="benefit-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Inscription gratuite
+      </div>
+      <div class="benefit-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Tableau de bord en temps réel
+      </div>
+      <div class="benefit-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Gestion de stock intégrée
+      </div>
+      <div class="benefit-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Validation sous 24-48h
+      </div>
+    </div>
+    <a href="https://medoq-api.onrender.com" class="btn-main" target="_blank" style="margin:0 auto;display:inline-flex">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Inscrire ma pharmacie
+    </a>
+    <p style="margin-top:20px;font-size:13px;color:rgba(255,255,255,.4)">
+      Une fois dans l'app, sélectionnez "Pharmacie" puis "Inscrire ma pharmacie"
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="foot-logo">Med<span>oq</span></div>
+    <div style="font-size:13px;margin-top:6px">Dakar, Sénégal · 2026</div>
+  </div>
+  <div style="display:flex;gap:24px;flex-wrap:wrap">
+    <a href="https://medoq-api.onrender.com" target="_blank">Application</a>
+    <a href="mailto:niangamadou394@gmail.com">Contact</a>
+    <a href="mailto:niangamadou394@gmail.com">niangamadou394@gmail.com</a>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  // simple mobile fallback — scroll to links
+  document.querySelector('.nav-links').style.display =
+    document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex';
+}
+</script>
+</body>
+</html>

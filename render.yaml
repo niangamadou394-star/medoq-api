@@ -33,6 +33,18 @@ services:
         value: Medoq
       - key: OTP_REQUIRED
         value: "true"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "465"
+      - key: ADMIN_EMAIL
+        value: niangamadou394@gmail.com
+      - key: ADMIN_BOOTSTRAP_SECRET
+        sync: false
 
 databases:
   - name: medoq-db

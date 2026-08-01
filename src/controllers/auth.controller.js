@@ -3,6 +3,7 @@ const jwt     = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const pool    = require('../database/db');
 const { sendOtpSms } = require('../services/sms');
+const { notifyNewPharmacyRequest } = require('../services/email');
 
 const JWT_SECRET          = process.env.JWT_SECRET          || 'medoq-secret';
 const JWT_EXPIRES_IN      = parseInt(process.env.JWT_EXPIRES_IN)        || 86400;
@@ -320,4 +321,72 @@ async function resetPassword(req, res, next) {
   } catch (err) { next(err); }
 }
 
-module.exports = { sendOtp, register, login, refresh, logout, me, updateMe, forgotPassword, resetPassword };
+// ─── POST /auth/register-pharmacy ────────────────────────────────────────────
+// Auto-inscription d'une pharmacie (en attente de validation par Medoq)
+async function registerPharmacy(req, res, next) {
+  try {
+    const {
+      pharmacyName, address, pharmacyPhone, licenseNumber, openingHours,
+      staffName, staffPhone, staffEmail, password
+    } = req.body;
+
+    if (!pharmacyName || !address || !pharmacyPhone || !licenseNumber ||
+        !staffName || !staffPhone || !password) {
+      return res.status(422).json({ success: false, message: 'Tous les champs obligatoires sont requis.' });
+    }
+    if (password.length < 6) {
+      return res.status(422).json({ success: false, message: 'Mot de passe min 6 caractères.' });
+    }
+
+    // Vérifier si la licence est déjà enregistrée
+    const { rows: existLic } = await pool.query(
+      'SELECT id FROM pharmacies WHERE license_number=$1', [licenseNumber]
+    );
+    if (existLic.length > 0) {
+      return res.status(409).json({ success: false, message: 'Cette pharmacie est déjà enregistrée.' });
+    }
+
+    // Vérifier si le numéro de téléphone du responsable est déjà utilisé
+    const { rows: existUser } = await pool.query(
+      'SELECT id FROM users WHERE phone=$1', [staffPhone]
+    );
+    if (existUser.length > 0) {
+      return res.status(409).json({ success: false, message: 'Ce numéro de téléphone est déjà associé à un compte.' });
+    }
+
+    // Créer la pharmacie (is_active=0, is_verified=0 — en attente)
+    const pharmacyId = uuidv4();
+    await pool.query(
+      `INSERT INTO pharmacies (id, name, address, latitude, longitude, phone, opening_hours, is_active, is_verified, license_number)
+       VALUES ($1,$2,$3,0,0,$4,$5,0,0,$6)`,
+      [pharmacyId, pharmacyName, address, pharmacyPhone, openingHours || '08h - 20h', licenseNumber]
+    );
+
+    // Créer le compte PHARMACY_STAFF
+    const userId = uuidv4();
+    const hash   = await bcrypt.hash(password, 10);
+    const email  = staffEmail ? staffEmail.toLowerCase() : null;
+    await pool.query(
+      `INSERT INTO users (id, phone, email, name, password_hash, role) VALUES ($1,$2,$3,$4,$5,'PHARMACY_STAFF')`,
+      [userId, staffPhone, email, staffName, hash]
+    );
+
+    // Rattacher le staff à la pharmacie
+    await pool.query(
+      `INSERT INTO pharmacy_users (id, pharmacy_id, user_id) VALUES ($1,$2,$3)`,
+      [uuidv4(), pharmacyId, userId]
+    );
+
+    // Notifier Amadou par email (non-bloquant)
+    notifyNewPharmacyRequest({ pharmacyName, address, licenseNumber, staffName, staffPhone, pharmacyId })
+      .catch(e => console.error('Email notification error:', e.message));
+
+    res.status(201).json({
+      success: true,
+      message: 'Demande enregistrée. L\'équipe Medoq vous contactera dans 24-48h pour finaliser votre inscription.',
+      data: { pharmacyId, status: 'pending' }
+    });
+  } catch (err) { next(err); }
+}
+
+module.exports = { sendOtp, register, login, refresh, logout, me, updateMe, forgotPassword, resetPassword, registerPharmacy };
