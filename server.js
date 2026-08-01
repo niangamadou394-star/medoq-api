@@ -78,7 +78,7 @@ async function start() {
       console.log(`🏥 Environment: ${process.env.NODE_ENV || 'development'}\n`);
     });
   } catch (err) {
-    console.error('Startup error:', err.message);
+    console.error('Startup error:', err && (err.stack || err.message || err));
     process.exit(1);
   }
 }

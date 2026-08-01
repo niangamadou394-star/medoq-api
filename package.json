@@ -11,7 +11,7 @@
     "build": "npm install"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "22.x"
   },
   "dependencies": {
     "africastalking": "^0.6.7",
