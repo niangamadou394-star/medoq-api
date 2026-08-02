@@ -34,7 +34,10 @@ router.post('/bootstrap', async (req, res, next) => {
       [id, phone, name || 'Admin Medoq', hash]
     );
     res.json({ success: true, message: 'Compte admin créé. Connectez-vous avec ce numéro.' });
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error('[BOOTSTRAP ERROR]', err);
+    return res.status(500).json({ success: false, message: err.message || String(err), stack: err.stack });
+  }
 });
 
 // Toutes les routes suivantes exigent un token ADMIN
