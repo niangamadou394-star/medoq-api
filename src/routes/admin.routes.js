@@ -3,7 +3,41 @@ const { v4: uuidv4 } = require('uuid');
 const pool   = require('../database/db');
 const { authenticate, requireRole } = require('../middleware/auth');
 
-// Toutes les routes admin exigent un token ADMIN
+// ─── POST /admin/bootstrap — créer le premier compte ADMIN ───────────────────
+// Doit être AVANT le middleware authenticate pour être accessible sans token
+// Sécurisé par : secret + vérification qu'aucun admin n'existe déjà
+router.post('/bootstrap', async (req, res, next) => {
+  try {
+    // Vérifie le secret (env var ou valeur par défaut)
+    const expectedSecret = process.env.ADMIN_BOOTSTRAP_SECRET || 'medoq-bootstrap-2024';
+    const secret = req.headers['x-admin-bootstrap'];
+    if (secret !== expectedSecret) {
+      return res.status(403).json({ success: false, message: 'Secret invalide' });
+    }
+
+    // Vérifie qu'aucun admin n'existe déjà
+    const { rows: existing } = await pool.query("SELECT id FROM users WHERE role='ADMIN' LIMIT 1");
+    if (existing.length > 0) {
+      return res.status(409).json({ success: false, message: 'Un compte admin existe déjà. Bootstrap désactivé.' });
+    }
+
+    const { phone, name, password } = req.body;
+    if (!phone || !password) {
+      return res.status(400).json({ success: false, message: 'phone et password requis' });
+    }
+
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash(password, 10);
+    const id = uuidv4();
+    await pool.query(
+      "INSERT INTO users (id, phone, name, password_hash, role, is_active) VALUES ($1,$2,$3,$4,'ADMIN',1) ON CONFLICT (phone) DO UPDATE SET role='ADMIN', is_active=1",
+      [id, phone, name || 'Admin Medoq', hash]
+    );
+    res.json({ success: true, message: 'Compte admin créé. Connectez-vous avec ce numéro.' });
+  } catch (err) { next(err); }
+});
+
+// Toutes les routes suivantes exigent un token ADMIN
 router.use(authenticate, requireRole('ADMIN'));
 
 // ─── GET /admin/pharmacies/pending — liste les pharmacies en attente ──────────
@@ -88,26 +122,6 @@ router.get('/stats', async (req, res, next) => {
         reservations:      parseInt(reservations.rows[0].cnt),
       }
     });
-  } catch (err) { next(err); }
-});
-
-// ─── POST /admin/create — créer un compte ADMIN ──────────────────────────────
-// À n'utiliser qu'une seule fois pour bootstrapper le premier admin
-router.post('/bootstrap', async (req, res, next) => {
-  try {
-    const secret = req.headers['x-admin-bootstrap'];
-    if (secret !== process.env.ADMIN_BOOTSTRAP_SECRET) {
-      return res.status(403).json({ success: false, message: 'Secret invalide' });
-    }
-    const { phone, name, password } = req.body;
-    const bcrypt = require('bcryptjs');
-    const hash = await bcrypt.hash(password, 10);
-    const id = uuidv4();
-    await pool.query(
-      'INSERT INTO users (id, phone, name, password_hash, role) VALUES ($1,$2,$3,$4,\'ADMIN\') ON CONFLICT (phone) DO UPDATE SET role=\'ADMIN\'',
-      [id, phone, name || 'Admin Medoq', hash]
-    );
-    res.json({ success: true, message: 'Compte admin créé. Connectez-vous avec ce numéro.' });
   } catch (err) { next(err); }
 });
 
