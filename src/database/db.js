@@ -1,12 +1,16 @@
-const { Pool } = require('pg');
+const { Pool, neonConfig } = require('@neondatabase/serverless');
+const ws = require('ws');
 require('dotenv').config();
+
+// Neon serverless driver — uses HTTP/WebSocket (port 443) instead of TCP 5432
+// Compatible with Render, Vercel, and all cloud environments
+neonConfig.webSocketConstructor = ws;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
   max: 10,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on('error', (err) => {
