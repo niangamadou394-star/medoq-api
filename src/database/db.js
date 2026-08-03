@@ -2,16 +2,14 @@ const { Pool, neonConfig } = require('@neondatabase/serverless');
 const ws = require('ws');
 require('dotenv').config();
 
-// Neon serverless driver — uses HTTP/WebSocket (port 443) instead of TCP 5432
-// Compatible with Render, Vercel, and all cloud environments
+// Neon serverless driver — HTTP/WebSocket (port 443), not TCP 5432
 neonConfig.webSocketConstructor = ws;
+neonConfig.poolQueryViaFetch = true;   // use HTTP fetch for pool.query()
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
-});
+const DATABASE_URL = process.env.DATABASE_URL;
+console.log('[DB] DATABASE_URL présente :', !!DATABASE_URL, '| host:', DATABASE_URL?.match(/@([^/]+)\//)?.[1]);
+
+const pool = new Pool({ connectionString: DATABASE_URL });
 
 pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL pool error:', err.message);
