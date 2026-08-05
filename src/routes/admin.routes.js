@@ -6,7 +6,7 @@ const { authenticate, requireRole } = require('../middleware/auth');
 // ─── POST /admin/bootstrap — créer le premier compte ADMIN ───────────────────
 // Doit être AVANT le middleware authenticate pour être accessible sans token
 // Sécurisé par : secret + vérification q'aucun admin n'existe déjà
-router.post('/bootstrap', async (req, res next) => {
+router.post('/bootstrap', async (req, res ,next) => {
   try {
     // Vérifie le secret (env var ou valeur par défaut)
     const expectedSecret = process.env.ADMIN_BOOTSTRAP_SECRET || 'medoq-bootstrap-2024';
