@@ -1,13 +1,9 @@
-const { Pool, neonConfig } = require('@neondatabase/serverless');
-const ws = require('ws');
+const { Pool } = require('pg');
 require('dotenv').config();
-
-// Use WebSocket (WSS port 443) — works through Render's outbound network to Neon c-N endpoints
-// Unlike TCP port 5432 (blocked) or HTTP fetch (blocked), WSS on 443 is allowed
-neonConfig.webSocketConstructor = ws;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
