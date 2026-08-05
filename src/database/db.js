@@ -1,15 +1,9 @@
-const { Pool, neonConfig } = require('@neondatabase/serverless');
+const { Pool } = require('pg');
 require('dotenv').config();
-
-// Use HTTP fetch API instead of TCP — works with Neon's serverless endpoints
-// Node.js 22 has built-in global fetch; this avoids all TCP/ECONNREFUSED issues
-neonConfig.poolQueryViaFetch = true;
-if (globalThis.fetch) {
-  neonConfig.fetchFunction = globalThis.fetch;
-}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
