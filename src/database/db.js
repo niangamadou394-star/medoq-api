@@ -1,15 +1,13 @@
-const { Pool, neonConfig } = require('@neondatabase/serverless');
-const ws = require('ws');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-// Neon serverless driver — HTTP/WebSocket (port 443), not TCP 5432
-neonConfig.webSocketConstructor = ws;
-neonConfig.poolQueryViaFetch = true;   // use HTTP fetch for pool.query()
-
-const DATABASE_URL = process.env.DATABASE_URL;
-console.log('[DB] DATABASE_URL présente :', !!DATABASE_URL, '| host:', DATABASE_URL?.match(/@([^/]+)\//)?.[1]);
-
-const pool = new Pool({ connectionString: DATABASE_URL });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+});
 
 pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL pool error:', err.message);
