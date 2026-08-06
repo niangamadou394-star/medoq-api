@@ -6,8 +6,8 @@ const { sendOtpSms } = require('../services/sms');
 const { notifyNewPharmacyRequest } = require('../services/email');
 
 const JWT_SECRET          = process.env.JWT_SECRET          || 'medoq-secret';
-const JWT_EXPIRES_IN      = parseInt(process.env.JWT_EXPIRES_IN)        || 86400;
-const JWT_REFRESH_EXPIRES = parseInt(process.env.JWT_REFRESH_EXPIRES_IN) || 604800;
+const JWT_EXPIRES_IN      = process.env.JWT_EXPIRES_IN || '24h';
+const JWT_REFRESH_EXPIRES = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 const OTP_TTL_MIN         = 10;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
