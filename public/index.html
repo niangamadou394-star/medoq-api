@@ -193,6 +193,12 @@ input.no-icon,select.no-icon{padding-left:14px}
  <input type="password" id="login-pass" placeholder="Mot de passe" autocomplete="current-password">
  </div>
  <div class="btn-wrap"><button class="btn btn-primary" onclick="doLogin()">Se connecter</button></div>
+ <div class="btn-wrap" style="padding-top:0">
+  <button class="btn" onclick="demoLogin()" style="background:linear-gradient(135deg,#FF6B35,#FF9A6C);color:#fff;font-weight:800;gap:10px;box-shadow:0 4px 16px rgba(255,107,53,.35)">
+   <span style="font-size:18px">🎯</span> Voir la démo
+  </button>
+ </div>
+ <p style="text-align:center;font-size:11px;color:var(--gray);padding:0 16px 4px">Données fictives · Aucun compte requis</p>
  <p style="text-align:center;font-size:13px;color:var(--gray);padding:4px 16px" id="login-create-link">
  <span id="login-create-text" style="color:var(--green);font-weight:600;cursor:pointer" onclick="showRegisterAuto()">Créer un compte</span>
  </p>
@@ -737,6 +743,99 @@ let S = {
  resQty: 1, resPayment: 'WAVE', resPrice: 0, resDelivery: 'PICKUP', resDeliveryAddress: '',
  allStock: [], allPhResas: [],
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DEMO MODE — données fictives pour présentation
+// ═══════════════════════════════════════════════════════════════════════════
+var DEMO_MODE = false;
+var DEMO_DB = {
+ user: { id: 'demo-001', name: 'Mamadou Diallo', phone: '+221771234567', role: 'PATIENT', email: null, isActive: true, createdAt: '2024-01-15T10:00:00Z' },
+ pharmacies: [
+   { id: 'ph-demo-001', name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '+221338672345', openingHours: '24h/24', isOnDuty: true, isActive: true, rating: 4.8 },
+   { id: 'ph-demo-002', name: 'Pharmacie Liberté 6', address: 'Liberté 6, Dakar', phone: '+221338451234', openingHours: '8h - 20h', isOnDuty: false, isActive: true, rating: 4.5 },
+   { id: 'ph-demo-003', name: 'Pharmacie Petersen', address: 'Rue Moussé Diop, Dakar', phone: '+221338218760', openingHours: '8h - 22h', isOnDuty: false, isActive: true, rating: 4.3 },
+   { id: 'ph-demo-004', name: 'Pharmacie Fann', address: 'Avenue Cheikh Anta Diop, Dakar', phone: '+221338258900', openingHours: '7h30 - 22h', isOnDuty: false, isActive: true, rating: 4.6 },
+ ],
+ medications: [
+   { id: 'med-demo-001', name: 'Paracétamol 500mg', dci: 'Paracétamol', form: 'Comprimé', dosage: '500mg', category: 'Analgésique', requiresPrescription: false, isCmu: true, description: 'Antidouleur et antipyrétique, indiqué pour les douleurs légères à modérées et la fièvre.' },
+   { id: 'med-demo-002', name: 'Amoxicilline 500mg', dci: 'Amoxicilline', form: 'Gélule', dosage: '500mg', category: 'Antibiotique', requiresPrescription: true, isCmu: true, description: 'Antibiotique de la famille des pénicillines, à large spectre d\'action.' },
+   { id: 'med-demo-003', name: 'Doliprane 1000mg', dci: 'Paracétamol', form: 'Comprimé', dosage: '1000mg', category: 'Analgésique', requiresPrescription: false, isCmu: false, description: 'Antidouleur adulte, efficace contre les douleurs modérées à intenses.' },
+   { id: 'med-demo-004', name: 'Ibuprofène 400mg', dci: 'Ibuprofène', form: 'Comprimé', dosage: '400mg', category: 'Anti-inflammatoire', requiresPrescription: false, isCmu: false, description: 'Anti-inflammatoire non stéroïdien, antidouleur et antipyrétique.' },
+   { id: 'med-demo-005', name: 'Metformine 500mg', dci: 'Metformine', form: 'Comprimé', dosage: '500mg', category: 'Antidiabétique', requiresPrescription: true, isCmu: true, description: 'Traitement de référence du diabète de type 2.' },
+   { id: 'med-demo-006', name: 'Chloroquine 100mg', dci: 'Chloroquine', form: 'Comprimé', dosage: '100mg', category: 'Antipaludéen', requiresPrescription: false, isCmu: true, description: 'Traitement préventif et curatif du paludisme.' },
+ ],
+ stocks: {
+   'ph-demo-001': [
+     { id: 'st-001', medicationId: 'med-demo-001', medication: { id: 'med-demo-001', name: 'Paracétamol 500mg', form: 'Comprimé', requiresPrescription: false, isCmu: true }, quantity: 150, price: 350, threshold: 20, isAvailable: true },
+     { id: 'st-002', medicationId: 'med-demo-002', medication: { id: 'med-demo-002', name: 'Amoxicilline 500mg', form: 'Gélule', requiresPrescription: true, isCmu: true }, quantity: 45, price: 1500, threshold: 10, isAvailable: true },
+     { id: 'st-003', medicationId: 'med-demo-003', medication: { id: 'med-demo-003', name: 'Doliprane 1000mg', form: 'Comprimé', requiresPrescription: false, isCmu: false }, quantity: 8, price: 800, threshold: 15, isAvailable: true },
+     { id: 'st-004', medicationId: 'med-demo-004', medication: { id: 'med-demo-004', name: 'Ibuprofène 400mg', form: 'Comprimé', requiresPrescription: false, isCmu: false }, quantity: 3, price: 950, threshold: 10, isAvailable: true },
+     { id: 'st-005', medicationId: 'med-demo-006', medication: { id: 'med-demo-006', name: 'Chloroquine 100mg', form: 'Comprimé', requiresPrescription: false, isCmu: true }, quantity: 0, price: 600, threshold: 15, isAvailable: false },
+   ],
+   'ph-demo-002': [
+     { id: 'st-006', medicationId: 'med-demo-001', medication: { id: 'med-demo-001', name: 'Paracétamol 500mg', form: 'Comprimé', requiresPrescription: false, isCmu: true }, quantity: 200, price: 350, threshold: 20, isAvailable: true },
+     { id: 'st-007', medicationId: 'med-demo-005', medication: { id: 'med-demo-005', name: 'Metformine 500mg', form: 'Comprimé', requiresPrescription: true, isCmu: true }, quantity: 60, price: 1200, threshold: 10, isAvailable: true },
+   ],
+ },
+ reservations: [
+   { id: 'res-demo-001', referenceNumber: 'MDQ-2024-0042', status: 'CONFIRMED', createdAt: new Date(Date.now()-2*3600000).toISOString(), updatedAt: new Date(Date.now()-1*3600000).toISOString(), quantity: 2, totalPrice: 700, paymentMethod: 'WAVE', deliveryType: 'PICKUP', medication: { name: 'Paracétamol 500mg', form: 'Comprimé' }, pharmacy: { name: 'Pharmacie Sacré-Cœur', address: 'Sacré-Cœur 3, Dakar', phone: '+221338672345' } },
+   { id: 'res-demo-002', referenceNumber: 'MDQ-2024-0041', status: 'PENDING', createdAt: new Date(Date.now()-24*3600000).toISOString(), quantity: 1, totalPrice: 1500, paymentMethod: 'CASH', deliveryType: 'PICKUP', medication: { name: 'Amoxicilline 500mg', form: 'Gélule' }, pharmacy: { name: 'Pharmacie Liberté 6', address: 'Liberté 6, Dakar', phone: '+221338451234' } },
+ ],
+};
+
+function demoIntercept(method, path, body) {
+ // pharmacies/me
+ if (path === '/pharmacies/me') return { success:true, data: DEMO_DB.pharmacies[0] };
+ // pharmacies/:id/stock
+ var stockM = path.match(/^\/pharmacies\/([^\/\?]+)\/stock/);
+ if (stockM) { var st = DEMO_DB.stocks[stockM[1]] || DEMO_DB.stocks['ph-demo-001']; return { success:true, data: st }; }
+ // pharmacies/:id
+ var phM = path.match(/^\/pharmacies\/([^\/\?]+)$/);
+ if (phM) { var ph = DEMO_DB.pharmacies.find(function(p){return p.id===phM[1];})||DEMO_DB.pharmacies[0]; return { success:true, data: ph }; }
+ // pharmacies list
+ if (path.indexOf('/pharmacies') === 0) return { success:true, data: { pharmacies: DEMO_DB.pharmacies, total: DEMO_DB.pharmacies.length } };
+ // medications/popular
+ if (path.indexOf('/medications/popular') === 0) return { success:true, data: DEMO_DB.medications };
+ // medications/categories
+ if (path.indexOf('/medications/categories') === 0) return { success:true, data: ['Analgésique','Antibiotique','Anti-inflammatoire','Antidiabétique','Antipaludéen'] };
+ // medications/:id
+ var medIdM = path.match(/^\/medications\/([^\/\?]+)$/);
+ if (medIdM) { var med = DEMO_DB.medications.find(function(m){return m.id===medIdM[1];})||DEMO_DB.medications[0]; return { success:true, data: med }; }
+ // medications list + search
+ if (path.indexOf('/medications') === 0) {
+   var q = (path.match(/[?&]q=([^&]+)/)||[])[1];
+   var isCmu = path.indexOf('cmu=1') > -1;
+   var meds = DEMO_DB.medications.slice();
+   if (q) { var ql = decodeURIComponent(q).toLowerCase(); meds = meds.filter(function(m){ return m.name.toLowerCase().indexOf(ql)>-1||(m.dci||'').toLowerCase().indexOf(ql)>-1||(m.category||'').toLowerCase().indexOf(ql)>-1; }); }
+   if (isCmu) meds = meds.filter(function(m){return m.isCmu;});
+   return { success:true, data: { medications: meds, total: meds.length } };
+ }
+ // reservations — POST create
+ if (method === 'POST' && path === '/reservations') {
+   var newRes = { id:'res-demo-'+Date.now(), referenceNumber:'MDQ-2024-0'+Math.floor(Math.random()*900+100), status:'PENDING', createdAt:new Date().toISOString(), quantity:body&&body.quantity?body.quantity:1, totalPrice:(body&&body.quantity?body.quantity:1)*(S.resPrice||500), paymentMethod:(body&&body.paymentMethod)||'WAVE', deliveryType:(body&&body.deliveryType)||'PICKUP', medication:S.currentMed?{name:S.currentMed.name,form:S.currentMed.form}:{name:'Médicament',form:''}, pharmacy:S.currentPharma?{name:S.currentPharma.name,address:S.currentPharma.address,phone:S.currentPharma.phone}:DEMO_DB.pharmacies[0] };
+   DEMO_DB.reservations.unshift(newRes);
+   return { success:true, data: newRes };
+ }
+ // reservations list
+ if (path.indexOf('/reservations') === 0) {
+   var statusF = (path.match(/[?&]status=([^&]+)/)||[])[1];
+   var resas = DEMO_DB.reservations.slice();
+   if (statusF) resas = resas.filter(function(r){return r.status===statusF;});
+   return { success:true, data: { reservations: resas, total: resas.length } };
+ }
+ // auth/me
+ if (path.indexOf('/auth/me') === 0) return { success:true, data: DEMO_DB.user };
+ return { success:true, data: {} };
+}
+
+function demoLogin() {
+ DEMO_MODE = true;
+ S.token = 'DEMO_TOKEN';
+ S.user = DEMO_DB.user;
+ S.pharmacyId = null;
+ toast('🎯 Mode Démo activé');
+ enterPatientMode();
+}
 var currentGardeId = null;
 function openCurrentGarde() { if (currentGardeId) openPharmacy(currentGardeId); }
 
@@ -744,6 +843,7 @@ function openCurrentGarde() { if (currentGardeId) openPharmacy(currentGardeId); 
 // API HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 async function api(method, path, body) {
+ if (DEMO_MODE) return demoIntercept(method, path, body);
  const headers = { 'Content-Type': 'application/json' };
  if (S.token) headers['Authorization'] = 'Bearer ' + S.token;
  try {
