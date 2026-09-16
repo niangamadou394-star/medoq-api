@@ -13,6 +13,7 @@
 :root {
   --blue: #0066FF;
   --teal: #00D4AA;
+  --teal-btn: #007A63; /* teal foncé : contraste 5.3:1 avec du texte blanc (--teal seul ne passe pas WCAG AA) */
   --dk:   #0A0E1A;
   --dk2:  #0D1833;
   --white:#FFFFFF;
@@ -24,6 +25,13 @@
 html { scroll-behavior: smooth; }
 body { font-family: var(--font); background: var(--white); color: var(--dk); overflow-x: hidden; }
 a { text-decoration: none; color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 4px; }
+.skip-link {
+  position: absolute; left: 12px; top: -60px; z-index: 200;
+  background: var(--white); color: var(--dk); font-weight: 700; font-size: 14px;
+  padding: 10px 18px; border-radius: 8px; transition: top .2s;
+}
+.skip-link:focus { top: 12px; }
 
 /* ── NAV ─────────────────────────────────────────────── */
 nav {
@@ -39,13 +47,13 @@ nav {
 .nav-links a { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); transition: color .2s; }
 .nav-links a:hover { color: var(--white); }
 .nav-cta {
-  background: linear-gradient(135deg, var(--blue), var(--teal));
+  background: linear-gradient(135deg, var(--blue), var(--teal-btn));
   color: var(--white); font-size: 14px; font-weight: 700;
   padding: 10px 22px; border-radius: 100px;
   transition: opacity .2s, transform .2s;
 }
 .nav-cta:hover { opacity: .9; transform: translateY(-1px); }
-.burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+.burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 8px; }
 .burger span { display: block; width: 22px; height: 2px; background: rgba(255,255,255,.7); border-radius: 2px; }
 
 /* ── HERO ────────────────────────────────────────────── */
@@ -88,7 +96,7 @@ nav {
 .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 .btn-main {
   display: inline-flex; align-items: center; gap: 10px;
-  background: linear-gradient(135deg, var(--blue), var(--teal));
+  background: linear-gradient(135deg, var(--blue), var(--teal-btn));
   color: var(--white); font-size: 16px; font-weight: 700;
   padding: 16px 32px; border-radius: 100px;
   box-shadow: 0 8px 32px rgba(0,102,255,.4);
@@ -161,7 +169,7 @@ nav {
 .step-card:hover { box-shadow: 0 8px 32px rgba(0,102,255,.1); transform: translateY(-3px); }
 .step-num {
   width: 44px; height: 44px; border-radius: 14px;
-  background: linear-gradient(135deg, var(--blue), var(--teal));
+  background: linear-gradient(135deg, var(--blue), var(--teal-btn));
   color: var(--white); font-weight: 800; font-size: 18px;
   display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
 }
@@ -196,7 +204,7 @@ nav {
 footer {
   background: var(--dk); color: rgba(255,255,255,.5);
   padding: 40px 40px; display: flex; align-items: center;
-  justify-content: space-between; flex-wrap: gap; gap: 16px;
+  justify-content: space-between; flex-wrap: wrap; gap: 16px;
 }
 footer .foot-logo { font-size: 20px; font-weight: 800; color: var(--white); }
 footer .foot-logo span { color: var(--teal); }
@@ -215,11 +223,13 @@ footer a:hover { color: var(--white); }
 </head>
 <body>
 
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
 <!-- NAV -->
 <nav>
   <div class="nav-logo">
     <!-- Logo officiel Medoq -->
-    <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Medoq — Santé connectée">
       <defs>
         <linearGradient id="iG" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stop-color="#1D9E75"/>
@@ -247,19 +257,19 @@ footer a:hover { color: var(--white); }
       <line x1="313" y1="197" x2="616" y2="197" stroke="#1D9E75" stroke-width="1" opacity=".35"/>
     </svg>
   </div>
-  <div class="nav-links">
+  <div class="nav-links" id="nav-links">
     <a href="#comment-ca-marche">Comment ça marche</a>
     <a href="#pharmacies">Pharmacies</a>
     <a href="mailto:niangamadou394@gmail.com">Contact</a>
   </div>
   <a href="https://medoq-api.onrender.com" class="nav-cta" target="_blank">Accéder à l'app</a>
-  <div class="burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  <button type="button" class="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-links" onclick="toggleMenu(this)"><span></span><span></span><span></span></button>
 </nav>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="main">
   <!-- Logo officiel grand format -->
-  <svg class="hero-logo" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+  <svg class="hero-logo" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Medoq — Santé connectée">
     <defs>
       <linearGradient id="iG2" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stop-color="#1D9E75"/>
@@ -412,10 +422,12 @@ footer a:hover { color: var(--white); }
 </footer>
 
 <script>
-function toggleMenu() {
-  // simple mobile fallback — scroll to links
-  document.querySelector('.nav-links').style.display =
-    document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex';
+function toggleMenu(btn) {
+  const links = document.getElementById('nav-links');
+  const open  = links.style.display === 'flex';
+  links.style.display = open ? 'none' : 'flex';
+  btn.setAttribute('aria-expanded', String(!open));
+  btn.setAttribute('aria-label', open ? 'Ouvrir le menu' : 'Fermer le menu');
 }
 </script>
 </body>
