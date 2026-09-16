@@ -140,6 +140,8 @@ async function initDb() {
     CREATE INDEX IF NOT EXISTS idx_stock_pharmacy         ON pharmacy_stock(pharmacy_id);
     CREATE INDEX IF NOT EXISTS idx_stock_medication       ON pharmacy_stock(medication_id);
     CREATE INDEX IF NOT EXISTS idx_otp_phone              ON otp_codes(phone);
+
+    CREATE SEQUENCE IF NOT EXISTS reservation_ref_seq;
   `);
 
   console.log('✅ PostgreSQL schema ready');

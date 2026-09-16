@@ -115,6 +115,16 @@ async function confirm(req, res, next) {
     if (!payment) return res.status(404).json({ success: false, message: 'Paiement introuvable' });
     if (payment.status === 'COMPLETED') return res.json({ success: true, message: 'Déjà confirmé' });
 
+    if (req.user.role === 'PHARMACY_STAFF') {
+      const { rows: resaRows } = await pool.query('SELECT pharmacy_id FROM reservations WHERE id=$1', [payment.reservation_id]);
+      const pharmacyId = resaRows[0]?.pharmacy_id;
+      const { rows: linkRows } = await pool.query(
+        'SELECT id FROM pharmacy_users WHERE pharmacy_id=$1 AND user_id=$2 AND is_active=1',
+        [pharmacyId, req.user.id]
+      );
+      if (!linkRows[0]) return res.status(403).json({ success: false, message: 'Accès refusé' });
+    }
+
     const now = new Date().toISOString();
     await pool.query("UPDATE payments SET status='COMPLETED', completed_at=$1 WHERE id=$2", [now, payment.id]);
     await pool.query('UPDATE reservations SET status=$1, updated_at=$2 WHERE id=$3', ['COMPLETED', now, payment.reservation_id]);

@@ -6,11 +6,11 @@ const EXPIRY_HOURS    = parseInt(process.env.RESERVATION_EXPIRY_HOURS) || 2;
 const DELIVERY_FEE    = parseFloat(process.env.DELIVERY_FEE) || 1500;
 
 // ─── Ref number generator ─────────────────────────────────────────────────────
+// Sequence-based (pas COUNT(*)) pour éviter les doublons sous réservations concurrentes.
 async function makeRef() {
-  const { rows } = await pool.query('SELECT COUNT(*) as cnt FROM reservations');
-  const count = parseInt(rows[0].cnt);
-  const year  = new Date().getFullYear();
-  return `MRX-${year}-${String(count + 1).padStart(6, '0')}`;
+  const { rows } = await pool.query("SELECT nextval('reservation_ref_seq') as n");
+  const year = new Date().getFullYear();
+  return `MRX-${year}-${String(rows[0].n).padStart(6, '0')}`;
 }
 
 // ─── POST /reservations ───────────────────────────────────────────────────────
@@ -51,10 +51,16 @@ async function create(req, res, next) {
 
     await client.query('BEGIN');
 
-    await client.query(
-      'UPDATE pharmacy_stock SET quantity=quantity-$1, updated_at=$2 WHERE pharmacy_id=$3 AND medication_id=$4',
+    // Le AND quantity>=$1 rend la décrémentation atomique : sous réservations
+    // concurrentes sur le même stock, un seul des deux appels peut réussir.
+    const { rowCount } = await client.query(
+      'UPDATE pharmacy_stock SET quantity=quantity-$1, updated_at=$2 WHERE pharmacy_id=$3 AND medication_id=$4 AND quantity>=$1',
       [quantity, now, pharmacyId, medicationId]
     );
+    if (rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ success: false, message: 'Stock insuffisant (réservé entre-temps par un autre patient)' });
+    }
 
     await client.query(`
       INSERT INTO reservations

@@ -8,8 +8,12 @@ const { authenticate, requireRole } = require('../middleware/auth');
 // Sécurisé par : secret + vérification q'aucun admin n'existe déjà
 router.post('/bootstrap', async (req, res ,next) => {
   try {
-    // Vérifie le secret (env var ou valeur par défaut)
-    const expectedSecret = process.env.ADMIN_BOOTSTRAP_SECRET || 'medoq-bootstrap-2024';
+    // Le secret doit être configuré explicitement (pas de valeur par défaut :
+    // une valeur codée en dur serait visible dans l'historique GitHub public).
+    const expectedSecret = process.env.ADMIN_BOOTSTRAP_SECRET;
+    if (!expectedSecret) {
+      return res.status(503).json({ success: false, message: 'Bootstrap non configuré (ADMIN_BOOTSTRAP_SECRET manquant)' });
+    }
     const secret = req.headers['x-admin-bootstrap'];
     if (secret !== expectedSecret) {
       return res.status(403).json({ success: false, message: 'Secret invalide' });
